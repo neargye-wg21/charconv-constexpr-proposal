@@ -37,10 +37,6 @@
 
 namespace nstd {
 
-inline constexpr char _Charconv_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-static_assert(std::size(_Charconv_digits) == 36);
-
 template <class _RawTy>
 constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, const _RawTy _Raw_value, const int _Base) noexcept {
     static_assert(std::is_integral_v<_RawTy>);
@@ -150,25 +146,6 @@ constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, con
     detail::chars_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
 
     return {_First + _Digits_written, std::errc{}};
-}
-
-constexpr unsigned char _Digit_from_char(const char _Ch) noexcept {
-    // convert ['0', '9'] ['A', 'Z'] ['a', 'z'] to [0, 35], everything else to 255
-    constexpr unsigned char _Digit_from_byte[] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 255, 255,
-        255, 255, 255, 255, 255, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-        32, 33, 34, 35, 255, 255, 255, 255, 255, 255, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255};
-    static_assert(std::size(_Digit_from_byte) == 256);
-
-    return _Digit_from_byte[static_cast<unsigned char>(_Ch)];
 }
 
 template <class _RawTy>

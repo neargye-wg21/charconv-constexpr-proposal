@@ -34,7 +34,7 @@ namespace proposal = nstd;
 TEST_CASE("[to_chars] int") {
   auto test = []() constexpr -> bool {
     std::array<char, 10> str = {};
-    if (auto[p, ec] = proposal::to_chars(str.data(), str.data() + str.size(), 42); ec == std::errc()) {
+    if (auto [p, ec] = proposal::to_chars(str.data(), str.data() + str.size(), 42); ec == std::errc{}) {
       return str[0] == '4' && str[1] == '2';
     }
     return false;
@@ -49,7 +49,7 @@ TEST_CASE("[from_chars] int") {
   auto test = []() constexpr -> bool {
     std::array<char, 10> str{"42"};
     int result = -1;
-    if (auto[p, ec] = proposal::from_chars(str.data(), str.data()+str.size(), result); ec == std::errc()) {
+    if (auto [p, ec] = proposal::from_chars(str.data(), str.data()+str.size(), result); ec == std::errc{}) {
       return result == 42;
     }
     return false;
