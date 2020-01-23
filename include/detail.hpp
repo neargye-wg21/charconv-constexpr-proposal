@@ -58,7 +58,7 @@ inline constexpr void chars_copy(char* dest, const char* src, std::size_t count)
   if (is_constant_evaluated()) {
 #if defined(__clang__)
     static_cast<void>(__builtin_memcpy(dest, src, count));
-#else defined(__clang__)
+#else
     for (std::size_t i = 0; i < count; ++i) {
       dest[i] = src[i];
     }
