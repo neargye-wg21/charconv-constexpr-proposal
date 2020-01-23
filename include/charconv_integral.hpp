@@ -31,6 +31,7 @@
 #include <cstddef>
 #include <cstring>
 #include <iterator>
+#include <climits>
 #include "charconv.hpp"
 #include "detail.hpp"
 
