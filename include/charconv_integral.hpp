@@ -60,9 +60,9 @@ constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, con
     }
 
     constexpr std::size_t _Buff_size = sizeof(_Unsigned) * CHAR_BIT; // enough for base 2
-    char _Buff[_Buff_size] = {}; //[neargye] default uninitialize for constexpr context. P1331 fix this?
-    char* const _Buff_end = _Buff + _Buff_size;
-    char* _RNext          = _Buff_end;
+    char _Buff[_Buff_size]           = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    char* const _Buff_end            = _Buff + _Buff_size;
+    char* _RNext                     = _Buff_end;
 
     switch (_Base) {
     case 10: { // Derived from _UIntegral_to_buff()
@@ -172,8 +172,8 @@ constexpr from_chars_result _Integer_from_chars(const char* const _First, const 
     constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
     constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
 
-    _Unsigned _Risky_val = {}; //[neargye] default uninitialize for constexpr context. P1331 fix this?
-    _Unsigned _Max_digit = {}; //[neargye] default uninitialize for constexpr context. P1331 fix this?
+    _Unsigned _Risky_val = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    _Unsigned _Max_digit = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
 
     if constexpr (std::is_signed_v<_RawTy>) {
         if (_Minus_sign) {
