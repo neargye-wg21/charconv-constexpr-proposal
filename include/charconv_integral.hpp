@@ -64,7 +64,7 @@ constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, con
     }
 
     constexpr std::size_t _Buff_size = sizeof(_Unsigned) * CHAR_BIT; // enough for base 2
-    char _Buff[_Buff_size];
+    char _Buff[_Buff_size] = {};
     char* const _Buff_end = _Buff + _Buff_size;
     char* _RNext          = _Buff_end;
 
