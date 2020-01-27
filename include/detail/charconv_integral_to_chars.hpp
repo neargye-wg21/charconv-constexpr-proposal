@@ -23,17 +23,20 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// Add Constexpr Modifiers to Functions 'to_chars' and `from_chars'
+// * add constexpr modifiers to '_Integer_to_chars' and remove '_NODISCARD'
+// * add default initialize '_Buff'
+// * change '_CSTD memcpy' to 'detail::chars_copy'
+// * change assert's
 
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-#include <cstring>
-#include <iterator>
-#include <climits>
-#include "charconv.hpp"
-#include "detail.hpp"
+#include <cassert> // assert
+#include <cstddef> // std::size_t, std::ptrdiff_t
+#include <climits> // CHAR_BIT
+#include <type_traits> // std::is_integral_v, std::is_signed_v, std::make_unsigned_t, std::conditional_t
+#include "charconv_entity.hpp" // to_chars_result
+#include "charconv_detail.hpp" // _Charconv_digits
+#include "detail.hpp" // chars_copy
 
 namespace nstd {
 
@@ -147,83 +150,6 @@ constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, con
     detail::chars_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
 
     return {_First + _Digits_written, std::errc{}};
-}
-
-template <class _RawTy>
-constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
-    static_assert(std::is_integral_v<_RawTy>);
-    assert(_First <= _Last); //_Adl_verify_range(_First, _Last);
-    assert(_First <= _Last); //_STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
-
-    bool _Minus_sign = false;
-
-    const char* _Next = _First;
-
-    if constexpr (std::is_signed_v<_RawTy>) {
-        if (_Next != _Last && *_Next == '-') {
-            _Minus_sign = true;
-            ++_Next;
-        }
-    }
-
-    using _Unsigned = std::make_unsigned_t<_RawTy>;
-
-    constexpr _Unsigned _Uint_max    = static_cast<_Unsigned>(-1);
-    constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
-    constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
-
-    _Unsigned _Risky_val = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    _Unsigned _Max_digit = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-
-    if constexpr (std::is_signed_v<_RawTy>) {
-        if (_Minus_sign) {
-            _Risky_val = static_cast<_Unsigned>(_Abs_int_min / _Base);
-            _Max_digit = static_cast<_Unsigned>(_Abs_int_min % _Base);
-        } else {
-            _Risky_val = static_cast<_Unsigned>(_Int_max / _Base);
-            _Max_digit = static_cast<_Unsigned>(_Int_max % _Base);
-        }
-    } else {
-        _Risky_val = static_cast<_Unsigned>(_Uint_max / _Base);
-        _Max_digit = static_cast<_Unsigned>(_Uint_max % _Base);
-    }
-
-    _Unsigned _Value = 0;
-
-    bool _Overflowed = false;
-
-    for (; _Next != _Last; ++_Next) {
-        const unsigned char _Digit = _Digit_from_char(*_Next);
-
-        if (_Digit >= _Base) {
-            break;
-        }
-
-        if (_Value < _Risky_val // never overflows
-            || (_Value == _Risky_val && _Digit <= _Max_digit)) { // overflows for certain digits
-            _Value = static_cast<_Unsigned>(_Value * _Base + _Digit);
-        } else { // _Value > _Risky_val always overflows
-            _Overflowed = true; // keep going, _Next still needs to be updated, _Value is now irrelevant
-        }
-    }
-
-    if (_Next - _First == static_cast<std::ptrdiff_t>(_Minus_sign)) {
-        return {_First, std::errc::invalid_argument};
-    }
-
-    if (_Overflowed) {
-        return {_Next, std::errc::result_out_of_range};
-    }
-
-    if constexpr (std::is_signed_v<_RawTy>) {
-        if (_Minus_sign) {
-            _Value = static_cast<_Unsigned>(0 - _Value);
-        }
-    }
-
-    _Raw_value = static_cast<_RawTy>(_Value); // implementation-defined for negative, N4713 7.8 [conv.integral]/3
-
-    return {_Next, std::errc{}};
 }
 
 } // namespace nstd

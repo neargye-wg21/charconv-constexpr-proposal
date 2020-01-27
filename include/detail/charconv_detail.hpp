@@ -20,55 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Copyright (c) Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// * add constexpr modifiers to '_Digit_from_char' and remove '_NODISCARD'
+
 #pragma once
 
-#include <cstddef>
-#include <system_error>
+#include <iterator> // std::size
 
 namespace nstd {
-
-enum class chars_format {
-  scientific = 1,
-  fixed = 2,
-  hex = 4,
-  general = fixed | scientific
-};
-
-struct to_chars_result {
-  char* ptr;
-  std::errc ec;
-};
-
-struct from_chars_result {
-  const char* ptr;
-  std::errc ec;
-};
-
-namespace detail {
-
-inline constexpr bool is_constant_evaluated() noexcept {
-#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
-  return __builtin_is_constant_evaluated();
-#else
-  return true;
-#endif
-}
-
-inline constexpr void chars_copy(char* dest, const char* src, std::size_t count) {
-  if (is_constant_evaluated()) {
-#if defined(__clang__)
-    static_cast<void>(__builtin_memcpy(dest, src, count));
-#else
-    for (std::size_t i = 0; i < count; ++i) {
-      dest[i] = src[i];
-    }
-#endif
-  } else {
-    static_cast<void>(std::memcpy(dest, src, count));
-  }
-}
-
-} // namespace nstd::detail
 
 inline constexpr char _Charconv_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};

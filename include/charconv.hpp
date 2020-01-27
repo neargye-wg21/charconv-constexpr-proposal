@@ -27,8 +27,9 @@
 
 #pragma once
 
-#include "detail.hpp"
-#include "charconv_integral.hpp"
+#include "detail/charconv_entity.hpp"
+#include "detail/charconv_integral_to_chars.hpp"
+#include "detail/charconv_integral_from_chars.hpp"
 
 namespace nstd {
 
@@ -66,7 +67,7 @@ constexpr to_chars_result to_chars(char* const _First, char* const _Last, const 
   return _Integer_to_chars(_First, _Last, _Value, _Base);
 }
 
-to_chars_result to_chars(char* _First, char* _Last, bool _Value, int _Base = 10) = delete;
+to_chars_result to_chars(char* _First, char* _Last, const bool _Value, const int _Base = 10) = delete;
 
 constexpr from_chars_result from_chars(const char* const _First, const char* const _Last, char& _Value, const int _Base = 10) noexcept {
   return _Integer_from_chars(_First, _Last, _Value, _Base);
@@ -102,6 +103,6 @@ constexpr from_chars_result from_chars(const char* const _First, const char* con
   return _Integer_from_chars(_First, _Last, _Value, _Base);
 }
 
-from_chars_result from_chars(const char* _First, const char* _Last, bool _Value, int _Base = 10) = delete;
+from_chars_result from_chars(const char* _First, const char* _Last, bool& _Value, const int _Base = 10) = delete;
 
 } // namespace nstd

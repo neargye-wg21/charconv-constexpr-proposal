@@ -34,13 +34,13 @@ function(make_test target std sources)
 endfunction()
 
 if(HAS_CPP20_FLAG)
-    make_test(charconv_integral-cpp20.t c++20 charconv_integral.cpp)
+    make_test(integral-cpp20.t c++20 test_integral.cpp)
 endif()
 
 if(HAS_CPP2A_FLAG)
-    make_test(charconv_integral-cpp2a.t c++2a charconv_integral.cpp)
+    make_test(integral-cpp2a.t c++2a test_integral.cpp)
 endif()
 
 if(HAS_CPPLATEST_FLAG)
-    make_test(charconv_integral-cpplatest.t c++latest charconv_integral.cpp)
+    make_test(integral-cpplatest.t c++latest test_integral.cpp)
 endif()
