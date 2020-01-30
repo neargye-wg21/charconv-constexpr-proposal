@@ -25,10 +25,19 @@
 
 // Changes:
 // * add constexpr modifiers to '_Digit_from_char' and remove '_NODISCARD'
+// * change _Adl_verify_range to assert
+// * change _STL_ASSERT to assert
 
 #pragma once
 
+#include <cassert> // assert
 #include <iterator> // std::size
+
+#undef  _Adl_verify_range
+#define _Adl_verify_range(_First, _Last) assert(_First <= _Last)
+
+#undef  _STL_ASSERT
+#define _STL_ASSERT(_Cond, _Msg) assert(_Cond)
 
 namespace nstd {
 

@@ -26,11 +26,10 @@
 // Changes:
 // * add constexpr modifiers to '_Integer_from_chars' and remove '_NODISCARD'
 // * add default initialize '_Risky_val' and '_Max_digit'
-// * change assert's
+// * add static_assert(std::is_integral_v<_RawTy>)
 
 #pragma once
 
-#include <cassert> // assert
 #include <cstddef> // std::ptrdiff_t
 #include <type_traits> // std::is_integral_v, std::is_signed_v, std::make_unsigned_t
 #include "charconv_entity.hpp" // from_chars_result
@@ -41,8 +40,8 @@ namespace nstd {
 template <class _RawTy>
 constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
     static_assert(std::is_integral_v<_RawTy>);
-    assert(_First <= _Last); //_Adl_verify_range(_First, _Last);
-    assert(_First <= _Last); //_STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
+    _Adl_verify_range(_First, _Last);
+    _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
 
     bool _Minus_sign = false;
 

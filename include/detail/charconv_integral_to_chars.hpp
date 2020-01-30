@@ -27,11 +27,10 @@
 // * add constexpr modifiers to '_Integer_to_chars' and remove '_NODISCARD'
 // * add default initialize '_Buff'
 // * change '_CSTD memcpy' to 'detail::chars_copy'
-// * change assert's
+// * add static_assert(std::is_integral_v<_RawTy>)
 
 #pragma once
 
-#include <cassert> // assert
 #include <cstddef> // std::size_t, std::ptrdiff_t
 #include <climits> // CHAR_BIT
 #include <type_traits> // std::is_integral_v, std::is_signed_v, std::make_unsigned_t, std::conditional_t
@@ -44,8 +43,8 @@ namespace nstd {
 template <class _RawTy>
 constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, const _RawTy _Raw_value, const int _Base) noexcept {
     static_assert(std::is_integral_v<_RawTy>);
-    assert(_First <= _Last); //_Adl_verify_range(_First, _Last);
-    assert(_First <= _Last); //_STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
+    _Adl_verify_range(_First, _Last);
+    _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
 
     using _Unsigned = std::make_unsigned_t<_RawTy>;
 
