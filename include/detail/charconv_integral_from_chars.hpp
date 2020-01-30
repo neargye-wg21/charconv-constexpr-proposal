@@ -23,6 +23,7 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// Changes:
 // * add constexpr modifiers to '_Integer_from_chars' and remove '_NODISCARD'
 // * add default initialize '_Risky_val' and '_Max_digit'
 // * change assert's
@@ -41,7 +42,7 @@ template <class _RawTy>
 constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
     static_assert(std::is_integral_v<_RawTy>);
     assert(_First <= _Last); //_Adl_verify_range(_First, _Last);
-    assert(_First <= _Last); //_STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
+    assert(_First <= _Last); //_STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
 
     bool _Minus_sign = false;
 

@@ -23,6 +23,7 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// Changes:
 // * add constexpr modifiers to '_Integer_to_chars' and remove '_NODISCARD'
 // * add default initialize '_Buff'
 // * change '_CSTD memcpy' to 'detail::chars_copy'

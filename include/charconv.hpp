@@ -23,7 +23,8 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// Add Constexpr Modifiers to Functions 'to_chars' and `from_chars'
+// Changes:
+// * add constexpr modifiers to 'to_chars' and 'from_chars'
 
 #pragma once
 

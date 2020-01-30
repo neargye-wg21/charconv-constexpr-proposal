@@ -23,6 +23,7 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// Changes:
 // * add constexpr modifiers to '_Digit_from_char' and remove '_NODISCARD'
 
 #pragma once
