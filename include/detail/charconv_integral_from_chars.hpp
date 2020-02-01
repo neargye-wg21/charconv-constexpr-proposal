@@ -56,9 +56,10 @@ constexpr from_chars_result _Integer_from_chars(const char* const _First, const 
 
     using _Unsigned = std::make_unsigned_t<_RawTy>;
 
-    constexpr _Unsigned _Uint_max    = static_cast<_Unsigned>(-1);
-    constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
-    constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
+	// [smertig] gcc-9 warning: variable XXX set but not used
+	[[maybe_unused]] constexpr _Unsigned _Uint_max    = static_cast<_Unsigned>(-1);
+	[[maybe_unused]] constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
+    [[maybe_unused]] constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
 
     _Unsigned _Risky_val = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
     _Unsigned _Max_digit = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
