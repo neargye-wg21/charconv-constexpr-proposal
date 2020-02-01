@@ -18,7 +18,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 function(make_test target std sources)
-    add_executable(${target} ${sources})
+    add_executable(${target} catch_main.cpp ${sources})
     target_compile_options(${target} PRIVATE ${OPTIONS})
     target_include_directories(${target} PRIVATE 3rdparty/Catch2)
     target_link_libraries(${target} PRIVATE ${CMAKE_PROJECT_NAME})
