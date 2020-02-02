@@ -62,7 +62,7 @@ TEST_CASE("[ieee754<float>]") {
 			REQUIRE(f == static_cast<float>(from_f));
 		}
 
-		auto old_i = std::exchange(i, i + 1);
+		auto old_i = std::exchange(i, i + rand() % 1000);
 		if (i < old_i) break;
 	}
 }
