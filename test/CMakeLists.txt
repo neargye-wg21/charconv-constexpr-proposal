@@ -35,12 +35,15 @@ endfunction()
 
 if(HAS_CPP20_FLAG)
     make_test(integral-cpp20.t c++20 test_integral.cpp)
+    make_test(bit_cast-cpp20.t c++20 test_bit_cast.cpp)
 endif()
 
 if(HAS_CPP2A_FLAG)
     make_test(integral-cpp2a.t c++2a test_integral.cpp)
+    make_test(bit_cast-cpp2a.t c++2a test_bit_cast.cpp)
 endif()
 
 if(HAS_CPPLATEST_FLAG)
     make_test(integral-cpplatest.t c++latest test_integral.cpp)
+    make_test(bit_cast-cpplatest.t c++latest test_bit_cast.cpp)
 endif()
