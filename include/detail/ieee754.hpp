@@ -50,24 +50,28 @@ class ieee754 {
 	static constexpr unsigned_t exponent_mask = ((unsigned_t(1) << exponent_bits) - 1) << mantissa_bits;
 	static constexpr unsigned_t mantissa_mask = (unsigned_t(1) << mantissa_bits) - 1;
 
+	constexpr bool signbit(floating_t f) {
+		return f == 0 ? 1 / f < 0 : f < 0;
+	}
+	
 public:
 	constexpr explicit ieee754(floating_t f) {
-		if (std::isnan(f)) {
+		if (f != f) {
 			m_exponent = (unsigned_t(1) << exponent_bits) - 1;
 			m_mantissa = 1; // any non-zero value
 		}
 		else if (!std::isfinite(f)) {
 			m_exponent = (unsigned_t(1) << exponent_bits) - 1;
 			m_mantissa = 0;
-			m_negative = std::signbit(f);
+			m_negative = signbit(f);
 		}
 		else if (f == 0) {
 			m_exponent = 0;
 			m_mantissa = 0;
-			m_negative = std::signbit(f);
+			m_negative = signbit(f);
 		}
 		else {
-			m_negative = std::signbit(f);
+			m_negative = signbit(f);
 			if (m_negative) f = -f;
 
 			m_exponent = exponent_bias;
