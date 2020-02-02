@@ -53,6 +53,10 @@ class ieee754 {
 	constexpr bool signbit(floating_t f) {
 		return f == 0 ? 1 / f < 0 : f < 0;
 	}
+
+	constexpr bool isfinite(floating_t f) {
+		return 1 / f != 0;
+	}
 	
 public:
 	constexpr explicit ieee754(floating_t f) {
@@ -60,7 +64,7 @@ public:
 			m_exponent = (unsigned_t(1) << exponent_bits) - 1;
 			m_mantissa = 1; // any non-zero value
 		}
-		else if (!std::isfinite(f)) {
+		else if (!isfinite(f)) {
 			m_exponent = (unsigned_t(1) << exponent_bits) - 1;
 			m_mantissa = 0;
 			m_negative = signbit(f);
