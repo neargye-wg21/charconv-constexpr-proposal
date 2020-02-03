@@ -38,7 +38,7 @@
 #include "charconv/detail/entity.hpp"
 #include "charconv/detail/detail.hpp"
 
-#include "third_party/chars_copy.hpp"
+#include "third_party/constexpr_utility.hpp"
 
 namespace nstd {
 

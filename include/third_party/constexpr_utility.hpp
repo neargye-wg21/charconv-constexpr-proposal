@@ -27,15 +27,15 @@
 
 namespace third_party {
 
-inline constexpr void chars_copy(char* dest, const char* src, std::size_t count) {
-    constexpr auto is_constant_evaluated = []() constexpr noexcept {
-#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
-        return __builtin_is_constant_evaluated();
+inline constexpr bool is_constant_evaluated() noexcept {
+#if defined(__cpp_lib_is_constant_evaluated)
+    return __builtin_is_constant_evaluated();
 #else
-        return true;
+    return true;
 #endif
-    };
+}
 
+inline constexpr void chars_copy(char* dest, const char* src, std::size_t count) {
     if (is_constant_evaluated()) {
 #if defined(__clang__)
         static_cast<void>(__builtin_memcpy(dest, src, count));
