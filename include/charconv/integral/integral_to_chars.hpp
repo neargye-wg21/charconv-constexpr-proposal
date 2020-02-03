@@ -55,7 +55,7 @@ _NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const
     if constexpr (std::is_signed_v<_RawTy>) {
         if (_Raw_value < 0) {
             if (_First == _Last) {
-                return {_Last, std::errc::value_too_large};
+                return {_Last, errc::value_too_large};
             }
 
             *_First++ = '-';
@@ -145,13 +145,13 @@ _NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const
     const std::ptrdiff_t _Digits_written = _Buff_end - _RNext;
 
     if (_Last - _First < _Digits_written) {
-        return {_Last, std::errc::value_too_large};
+        return {_Last, errc::value_too_large};
     }
 
     //[neargye] constexpr copy chars. P1944 fix this?
     third_party::chars_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
 
-    return {_First + _Digits_written, std::errc{}};
+    return {_First + _Digits_written, errc{}};
 }
 
 } // namespace nstd

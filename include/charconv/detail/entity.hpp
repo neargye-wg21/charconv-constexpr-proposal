@@ -29,6 +29,8 @@
 
 namespace nstd {
 
+using errc = std::errc;
+
 enum class chars_format {
     scientific = 1,
     fixed = 2,
@@ -38,12 +40,12 @@ enum class chars_format {
 
 struct to_chars_result {
     char* ptr;
-    std::errc ec;
+    errc ec;
 };
 
 struct from_chars_result {
     const char* ptr;
-    std::errc ec;
+    errc ec;
 };
 
 } // namespace nstd

@@ -99,11 +99,11 @@ _NODISCARD constexpr from_chars_result _Integer_from_chars(const char* const _Fi
     }
 
     if (_Next - _First == static_cast<std::ptrdiff_t>(_Minus_sign)) {
-        return {_First, std::errc::invalid_argument};
+        return {_First, errc::invalid_argument};
     }
 
     if (_Overflowed) {
-        return {_Next, std::errc::result_out_of_range};
+        return {_Next, errc::result_out_of_range};
     }
 
     if constexpr (std::is_signed_v<_RawTy>) {
@@ -114,7 +114,7 @@ _NODISCARD constexpr from_chars_result _Integer_from_chars(const char* const _Fi
 
     _Raw_value = static_cast<_RawTy>(_Value); // implementation-defined for negative, N4713 7.8 [conv.integral]/3
 
-    return {_Next, std::errc{}};
+    return {_Next, errc{}};
 }
 
 } // namespace nstd
