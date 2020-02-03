@@ -24,14 +24,17 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // Changes:
-// * add constexpr modifiers to '_Digit_from_char' and remove '_NODISCARD'
+// * add constexpr modifiers to '_Digit_from_char'
 // * change _Adl_verify_range to assert
 // * change _STL_ASSERT to assert
 
 #pragma once
 
-#include <cassert> // assert
-#include <iterator> // std::size
+#include <cassert>
+#include <iterator>
+
+#undef _NODISCARD
+#define _NODISCARD [[nodiscard]]
 
 #undef  _Adl_verify_range
 #define _Adl_verify_range(_First, _Last) assert(_First <= _Last)
@@ -39,13 +42,16 @@
 #undef  _STL_ASSERT
 #define _STL_ASSERT(_Cond, _Msg) assert(_Cond)
 
+#undef  _STL_INTERNAL_CHECK
+#define _STL_INTERNAL_CHECK(_Cond) assert(_Cond)
+
 namespace nstd {
 
 inline constexpr char _Charconv_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 static_assert(std::size(_Charconv_digits) == 36);
 
-constexpr unsigned char _Digit_from_char(const char _Ch) noexcept {
+_NODISCARD constexpr unsigned char _Digit_from_char(const char _Ch) noexcept {
     // convert ['0', '9'] ['A', 'Z'] ['a', 'z'] to [0, 35], everything else to 255
     constexpr unsigned char _Digit_from_byte[] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
         255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,

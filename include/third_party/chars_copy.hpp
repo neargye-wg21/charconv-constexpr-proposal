@@ -20,41 +20,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <catch.hpp>
+#pragma once
 
-#include <charconv/charconv.hpp>
-
-namespace proposal = nstd;
-
-#include <array>
+#include <cstddef>
 #include <cstring>
-#include <iterator>
 
-TEST_CASE("[to_chars] int") {
-    auto test = []() constexpr -> bool {
-        std::array<char, 10> str = {};
-        if (auto [p, ec] = proposal::to_chars(str.data(), str.data() + str.size(), 42); ec == std::errc{}) {
-            return str[0] == '4' && str[1] == '2';
-        }
-        return false;
+namespace third_party {
+
+inline constexpr void chars_copy(char* dest, const char* src, std::size_t count) {
+    constexpr auto is_constant_evaluated = []() constexpr noexcept {
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+        return __builtin_is_constant_evaluated();
+#else
+        return true;
+#endif
     };
 
-    constexpr auto test_to_chars_int = test();
-    static_assert(test_to_chars_int);
-    REQUIRE(test());
-}
-
-TEST_CASE("[from_chars] int") {
-    auto test = []() constexpr -> bool {
-        std::array<char, 10> str{"42"};
-        int result = -1;
-        if (auto [p, ec] = proposal::from_chars(str.data(), str.data()+str.size(), result); ec == std::errc{}) {
-            return result == 42;
+    if (is_constant_evaluated()) {
+#if defined(__clang__)
+        static_cast<void>(__builtin_memcpy(dest, src, count));
+#else
+        for (std::size_t i = 0; i < count; ++i) {
+            dest[i] = src[i];
         }
-        return false;
-    };
-
-    constexpr auto test_from_chars_int = test();
-    static_assert(test_from_chars_int);
-    REQUIRE(test());
+#endif
+    } else {
+        static_cast<void>(std::memcpy(dest, src, count));
+    }
 }
+
+} // namespace third_party

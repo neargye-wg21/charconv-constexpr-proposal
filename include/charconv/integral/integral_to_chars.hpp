@@ -24,24 +24,26 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // Changes:
-// * add constexpr modifiers to '_Integer_to_chars' and remove '_NODISCARD'
+// * add constexpr modifiers to '_Integer_to_chars'
 // * add default initialize '_Buff'
-// * change '_CSTD memcpy' to 'detail::chars_copy'
+// * change '_CSTD memcpy' to 'third_party::chars_copy'
 // * add static_assert(std::is_integral_v<_RawTy>)
 
 #pragma once
 
-#include <cstddef> // std::size_t, std::ptrdiff_t
-#include <climits> // CHAR_BIT
-#include <type_traits> // std::is_integral_v, std::is_signed_v, std::make_unsigned_t, std::conditional_t
-#include "charconv_entity.hpp" // to_chars_result
-#include "charconv_detail.hpp" // _Charconv_digits
-#include "detail.hpp" // chars_copy
+#include <cstddef>
+#include <climits>
+#include <type_traits>
+
+#include "charconv/detail/entity.hpp"
+#include "charconv/detail/detail.hpp"
+
+#include "third_party/chars_copy.hpp"
 
 namespace nstd {
 
 template <class _RawTy>
-constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, const _RawTy _Raw_value, const int _Base) noexcept {
+_NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, const _RawTy _Raw_value, const int _Base) noexcept {
     static_assert(std::is_integral_v<_RawTy>);
     _Adl_verify_range(_First, _Last);
     _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
@@ -147,7 +149,7 @@ constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, con
     }
 
     //[neargye] constexpr copy chars. P1944 fix this?
-    detail::chars_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
+    third_party::chars_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
 
     return {_First + _Digits_written, std::errc{}};
 }

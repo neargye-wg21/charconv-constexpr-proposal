@@ -25,25 +25,28 @@
 
 #pragma once
 
-#include <system_error> // std::errc
+#include <type_traits>
+
+#include "third_party/ieee754.hpp"
 
 namespace nstd {
 
-enum class chars_format {
-  scientific = 1,
-  fixed = 2,
-  hex = 4,
-  general = fixed | scientific
-};
+template <class _To, class _From>
+constexpr _To _Bit_cast(const _From& _From_obj) noexcept {
+    static_assert(sizeof(_To) == sizeof(_From));
+    static_assert(std::is_trivially_copyable_v<_To>);
+    static_assert(std::is_trivially_copyable_v<_From>);
+#if defined(__clang__)
+    _To _To_obj = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    __builtin_memcpy(&_To_obj, &_From_obj, sizeof(_To));
+    return _To_obj;
+#else
+    if constexpr (std::is_floating_point_v<_From> || std::is_floating_point_v<_To>) {
+        return static_cast<_To>(third_party::ieee754(_From_obj));
+    } else {
+        static_assert(sizeof(_To) == 0, "not implemented");
+    }
+#endif
+}
 
-struct to_chars_result {
-  char* ptr;
-  std::errc ec;
-};
-
-struct from_chars_result {
-  const char* ptr;
-  std::errc ec;
-};
-
-} // namespace nstd
+}

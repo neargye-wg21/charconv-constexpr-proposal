@@ -1,6 +1,6 @@
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2020 Daniil Goncharov <neargye@gmail.com>, Karaev Alexander <akaraevz@mail.ru>.
+// Copyright (c) 2019 Daniil Goncharov <neargye@gmail.com>.
 //
 // Permission is hereby  granted, free of charge, to any  person obtaining a copy
 // of this software and associated  documentation files (the "Software"), to deal
@@ -20,33 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Copyright (c) Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// * add constexpr modifiers to ''
+
 #pragma once
 
-#include <cstddef> // std::size_t
-#include <cstring> // std::memcpy
+namespace nstd {
 
-namespace nstd::detail {
-
-inline constexpr bool is_constant_evaluated() noexcept {
-#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
-  return __builtin_is_constant_evaluated();
-#else
-  return true;
-#endif
-}
-
-inline constexpr void chars_copy(char* dest, const char* src, std::size_t count) {
-  if (is_constant_evaluated()) {
-#if defined(__clang__)
-    static_cast<void>(__builtin_memcpy(dest, src, count));
-#else
-    for (std::size_t i = 0; i < count; ++i) {
-      dest[i] = src[i];
-    }
-#endif
-  } else {
-    static_cast<void>(std::memcpy(dest, src, count));
-  }
-}
-
-} // namespace nstd::detail
+} // namespace nstd

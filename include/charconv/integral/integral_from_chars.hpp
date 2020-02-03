@@ -24,21 +24,23 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // Changes:
-// * add constexpr modifiers to '_Integer_from_chars' and remove '_NODISCARD'
+// * add constexpr modifiers to '_Integer_from_chars'
 // * add default initialize '_Risky_val' and '_Max_digit'
 // * add static_assert(std::is_integral_v<_RawTy>)
+// * add [[maybe_unused]] to _Uint_max, _Int_max, _Abs_int_min.
 
 #pragma once
 
-#include <cstddef> // std::ptrdiff_t
-#include <type_traits> // std::is_integral_v, std::is_signed_v, std::make_unsigned_t
-#include "charconv_entity.hpp" // from_chars_result
-#include "charconv_detail.hpp" // _Digit_from_char
+#include <cstddef>
+#include <type_traits>
+
+#include "charconv/detail/entity.hpp"
+#include "charconv/detail/detail.hpp"
 
 namespace nstd {
 
 template <class _RawTy>
-constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
+_NODISCARD constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
     static_assert(std::is_integral_v<_RawTy>);
     _Adl_verify_range(_First, _Last);
     _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
@@ -56,10 +58,10 @@ constexpr from_chars_result _Integer_from_chars(const char* const _First, const 
 
     using _Unsigned = std::make_unsigned_t<_RawTy>;
 
-	// [smertig] gcc-9 warning: variable XXX set but not used
-	[[maybe_unused]] constexpr _Unsigned _Uint_max    = static_cast<_Unsigned>(-1);
-	[[maybe_unused]] constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
-	[[maybe_unused]] constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
+    // [smertig] gcc-9 warning: variable XXX set but not used.
+    [[maybe_unused]] constexpr _Unsigned _Uint_max    = static_cast<_Unsigned>(-1);
+    [[maybe_unused]] constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
+    [[maybe_unused]] constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
 
     _Unsigned _Risky_val = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
     _Unsigned _Max_digit = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
