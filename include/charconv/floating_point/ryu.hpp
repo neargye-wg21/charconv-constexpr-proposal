@@ -58,6 +58,10 @@
 
 #include "ryu_tables.hpp"
 
+// [neargye] TODO cros-compiler
+#undef _M_X64 // [neargye] intrinsics unavailable _umul128() and __shiftright128()
+#define __forceinline inline
+
 namespace nstd {
 
 // https://github.com/ulfjack/ryu/tree/59661c3/ryu
@@ -109,13 +113,13 @@ _NODISCARD inline uint32_t __log10Pow5(const int32_t __e) {
 
 _NODISCARD inline uint32_t __float_to_bits(const float __f) {
   uint32_t __bits = 0;
-  _CSTD memcpy(&__bits, &__f, sizeof(float));
+  std::memcpy(&__bits, &__f, sizeof(float));
   return __bits;
 }
 
 _NODISCARD inline uint64_t __double_to_bits(const double __d) {
   uint64_t __bits = 0;
-  _CSTD memcpy(&__bits, &__d, sizeof(double));
+  std::memcpy(&__bits, &__d, sizeof(double));
   return __bits;
 }
 
@@ -399,19 +403,19 @@ inline void __append_n_digits(const uint32_t __olength, uint32_t __digits, char*
     __digits /= 10000;
     const uint32_t __c0 = (__c % 100) << 1;
     const uint32_t __c1 = (__c / 100) << 1;
-    _CSTD memcpy(__result + __olength - __i - 2, __DIGIT_TABLE + __c0, 2);
-    _CSTD memcpy(__result + __olength - __i - 4, __DIGIT_TABLE + __c1, 2);
+    std::memcpy(__result + __olength - __i - 2, __DIGIT_TABLE + __c0, 2);
+    std::memcpy(__result + __olength - __i - 4, __DIGIT_TABLE + __c1, 2);
     __i += 4;
   }
   if (__digits >= 100) {
     const uint32_t __c = (__digits % 100) << 1;
     __digits /= 100;
-    _CSTD memcpy(__result + __olength - __i - 2, __DIGIT_TABLE + __c, 2);
+    std::memcpy(__result + __olength - __i - 2, __DIGIT_TABLE + __c, 2);
     __i += 2;
   }
   if (__digits >= 10) {
     const uint32_t __c = __digits << 1;
-    _CSTD memcpy(__result + __olength - __i - 2, __DIGIT_TABLE + __c, 2);
+    std::memcpy(__result + __olength - __i - 2, __DIGIT_TABLE + __c, 2);
   } else {
     __result[0] = static_cast<char>('0' + __digits);
   }
@@ -428,14 +432,14 @@ inline void __append_d_digits(const uint32_t __olength, uint32_t __digits, char*
     __digits /= 10000;
     const uint32_t __c0 = (__c % 100) << 1;
     const uint32_t __c1 = (__c / 100) << 1;
-    _CSTD memcpy(__result + __olength + 1 - __i - 2, __DIGIT_TABLE + __c0, 2);
-    _CSTD memcpy(__result + __olength + 1 - __i - 4, __DIGIT_TABLE + __c1, 2);
+    std::memcpy(__result + __olength + 1 - __i - 2, __DIGIT_TABLE + __c0, 2);
+    std::memcpy(__result + __olength + 1 - __i - 4, __DIGIT_TABLE + __c1, 2);
     __i += 4;
   }
   if (__digits >= 100) {
     const uint32_t __c = (__digits % 100) << 1;
     __digits /= 100;
-    _CSTD memcpy(__result + __olength + 1 - __i - 2, __DIGIT_TABLE + __c, 2);
+    std::memcpy(__result + __olength + 1 - __i - 2, __DIGIT_TABLE + __c, 2);
     __i += 2;
   }
   if (__digits >= 10) {
@@ -454,7 +458,7 @@ inline void __append_c_digits(const uint32_t __count, uint32_t __digits, char* c
   for (; __i < __count - 1; __i += 2) {
     const uint32_t __c = (__digits % 100) << 1;
     __digits /= 100;
-    _CSTD memcpy(__result + __count - __i - 2, __DIGIT_TABLE + __c, 2);
+    std::memcpy(__result + __count - __i - 2, __DIGIT_TABLE + __c, 2);
   }
   if (__i < __count) {
     const char __c = static_cast<char>('0' + (__digits % 10));
@@ -464,7 +468,7 @@ inline void __append_c_digits(const uint32_t __count, uint32_t __digits, char* c
 
 inline void __append_nine_digits(uint32_t __digits, char* const __result) {
   if (__digits == 0) {
-    _CSTD memset(__result, '0', 9);
+    std::memset(__result, '0', 9);
     return;
   }
 
@@ -477,8 +481,8 @@ inline void __append_nine_digits(uint32_t __digits, char* const __result) {
     __digits /= 10000;
     const uint32_t __c0 = (__c % 100) << 1;
     const uint32_t __c1 = (__c / 100) << 1;
-    _CSTD memcpy(__result + 7 - __i, __DIGIT_TABLE + __c0, 2);
-    _CSTD memcpy(__result + 5 - __i, __DIGIT_TABLE + __c1, 2);
+    std::memcpy(__result + 7 - __i, __DIGIT_TABLE + __c0, 2);
+    std::memcpy(__result + 5 - __i, __DIGIT_TABLE + __c1, 2);
   }
   __result[0] = static_cast<char>('0' + __digits);
 }
@@ -515,7 +519,7 @@ _NODISCARD inline to_chars_result __d2fixed_buffered_n(char* _First, char* const
     *_First++ = '0';
     if (__precision > 0) {
       *_First++ = '.';
-      _CSTD memset(_First, '0', __precision);
+      std::memset(_First, '0', __precision);
       _First += __precision;
     }
     return { _First, errc{} };
@@ -586,14 +590,14 @@ _NODISCARD inline to_chars_result __d2fixed_buffered_n(char* _First, char* const
       if (_Last - _First < static_cast<ptrdiff_t>(__precision)) {
         return { _Last, errc::value_too_large };
       }
-      _CSTD memset(_First, '0', __precision);
+      std::memset(_First, '0', __precision);
       _First += __precision;
     } else if (__i < __MIN_BLOCK_2[__idx]) {
       __i = __MIN_BLOCK_2[__idx];
       if (_Last - _First < static_cast<ptrdiff_t>(9 * __i)) {
         return { _Last, errc::value_too_large };
       }
-      _CSTD memset(_First, '0', 9 * __i);
+      std::memset(_First, '0', 9 * __i);
       _First += 9 * __i;
     }
     for (; __i < __blocks; ++__i) {
@@ -606,7 +610,7 @@ _NODISCARD inline to_chars_result __d2fixed_buffered_n(char* _First, char* const
         if (_Last - _First < static_cast<ptrdiff_t>(__fill)) {
           return { _Last, errc::value_too_large };
         }
-        _CSTD memset(_First, '0', __fill);
+        std::memset(_First, '0', __fill);
         _First += __fill;
         break;
       }
@@ -680,7 +684,7 @@ _NODISCARD inline to_chars_result __d2fixed_buffered_n(char* _First, char* const
     if (_Last - _First < static_cast<ptrdiff_t>(__precision)) {
       return { _Last, errc::value_too_large };
     }
-    _CSTD memset(_First, '0', __precision);
+    std::memset(_First, '0', __precision);
     _First += __precision;
   }
   return { _First, errc{} };
@@ -704,10 +708,10 @@ _NODISCARD inline to_chars_result __d2exp_buffered_n(char* _First, char* const _
     *_First++ = '0';
     if (__precision > 0) {
       *_First++ = '.';
-      _CSTD memset(_First, '0', __precision);
+      std::memset(_First, '0', __precision);
       _First += __precision;
     }
-    _CSTD memcpy(_First, "e+00", 4);
+    std::memcpy(_First, "e+00", 4);
     _First += 4;
     return { _First, errc{} };
   }
@@ -853,7 +857,7 @@ _NODISCARD inline to_chars_result __d2exp_buffered_n(char* _First, char* const _
       return { _Last, errc::value_too_large };
     }
     if (__digits == 0) {
-      _CSTD memset(_First, '0', __maximum);
+      std::memset(_First, '0', __maximum);
     } else {
       __append_c_digits(__maximum, __digits, _First);
     }
@@ -918,11 +922,11 @@ _NODISCARD inline to_chars_result __d2exp_buffered_n(char* _First, char* const _
 
   if (__exp >= 100) {
     const int32_t __c = __exp % 10;
-    _CSTD memcpy(_First, __DIGIT_TABLE + 2 * (__exp / 10), 2);
+    std::memcpy(_First, __DIGIT_TABLE + 2 * (__exp / 10), 2);
     _First[2] = static_cast<char>('0' + __c);
     _First += 3;
   } else {
-    _CSTD memcpy(_First, __DIGIT_TABLE + 2 * __exp, 2);
+    std::memcpy(_First, __DIGIT_TABLE + 2 * __exp, 2);
     _First += 2;
   }
 
@@ -1447,35 +1451,35 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
       __output /= 10000;
       const uint32_t __c0 = (__c % 100) << 1;
       const uint32_t __c1 = (__c / 100) << 1;
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c0, 2);
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c1, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c0, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c1, 2);
     }
     if (__output >= 100) {
       const uint32_t __c = (__output % 100) << 1;
       __output /= 100;
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
     }
     if (__output >= 10) {
       const uint32_t __c = __output << 1;
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
     } else {
       *--_Mid = static_cast<char>('0' + __output);
     }
 
     if (_Ryu_exponent > 0) { // case "172900" with _Can_use_ryu
       // Performance note: it might be more efficient to do this immediately after setting _Mid.
-      _CSTD memset(_First + __olength, '0', static_cast<size_t>(_Ryu_exponent));
+      std::memset(_First + __olength, '0', static_cast<size_t>(_Ryu_exponent));
     } else if (_Ryu_exponent == 0) { // case "1729"
       // Done!
     } else if (_Whole_digits > 0) { // case "17.29"
       // Performance note: moving digits might not be optimal.
-      _CSTD memmove(_First, _First + 1, static_cast<size_t>(_Whole_digits));
+      std::memmove(_First, _First + 1, static_cast<size_t>(_Whole_digits));
       _First[_Whole_digits] = '.';
     } else { // case "0.001729"
       // Performance note: a larger memset() followed by overwriting '.' might be more efficient.
       _First[0] = '0';
       _First[1] = '.';
-      _CSTD memset(_First + 2, '0', static_cast<size_t>(-_Whole_digits));
+      std::memset(_First + 2, '0', static_cast<size_t>(-_Whole_digits));
     }
 
     return { _First + _Total_fixed_length, errc{} };
@@ -1499,14 +1503,14 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
     __output /= 10000;
     const uint32_t __c0 = (__c % 100) << 1;
     const uint32_t __c1 = (__c / 100) << 1;
-    _CSTD memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c0, 2);
-    _CSTD memcpy(__result + __olength - __i - 3, __DIGIT_TABLE + __c1, 2);
+    std::memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c0, 2);
+    std::memcpy(__result + __olength - __i - 3, __DIGIT_TABLE + __c1, 2);
     __i += 4;
   }
   if (__output >= 100) {
     const uint32_t __c = (__output % 100) << 1;
     __output /= 100;
-    _CSTD memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c, 2);
+    std::memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c, 2);
     __i += 2;
   }
   if (__output >= 10) {
@@ -1536,7 +1540,7 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
     __result[__index++] = '+';
   }
 
-  _CSTD memcpy(__result + __index, __DIGIT_TABLE + 2 * _Scientific_exponent, 2);
+  std::memcpy(__result + __index, __DIGIT_TABLE + 2 * _Scientific_exponent, 2);
   __index += 2;
 
   return { _First + _Total_scientific_length, errc{} };
@@ -1555,7 +1559,7 @@ _NODISCARD inline to_chars_result __f2s_buffered_n(char* const _First, char* con
         return { _Last, errc::value_too_large };
       }
 
-      _CSTD memcpy(_First, "0e+00", 5);
+      std::memcpy(_First, "0e+00", 5);
 
       return { _First + 5, errc{} };
     }
@@ -2071,10 +2075,10 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
       const uint32_t __d0 = (__d % 100) << 1;
       const uint32_t __d1 = (__d / 100) << 1;
 
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c0, 2);
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c1, 2);
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __d0, 2);
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __d1, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c0, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c1, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __d0, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __d1, 2);
     }
     uint32_t __output2 = static_cast<uint32_t>(__output);
     while (__output2 >= 10000) {
@@ -2086,35 +2090,35 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
       __output2 /= 10000;
       const uint32_t __c0 = (__c % 100) << 1;
       const uint32_t __c1 = (__c / 100) << 1;
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c0, 2);
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c1, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c0, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c1, 2);
     }
     if (__output2 >= 100) {
       const uint32_t __c = (__output2 % 100) << 1;
       __output2 /= 100;
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
     }
     if (__output2 >= 10) {
       const uint32_t __c = __output2 << 1;
-      _CSTD memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
+      std::memcpy(_Mid -= 2, __DIGIT_TABLE + __c, 2);
     } else {
       *--_Mid = static_cast<char>('0' + __output2);
     }
 
     if (_Ryu_exponent > 0) { // case "172900" with _Can_use_ryu
       // Performance note: it might be more efficient to do this immediately after setting _Mid.
-      _CSTD memset(_First + __olength, '0', static_cast<size_t>(_Ryu_exponent));
+      std::memset(_First + __olength, '0', static_cast<size_t>(_Ryu_exponent));
     } else if (_Ryu_exponent == 0) { // case "1729"
       // Done!
     } else if (_Whole_digits > 0) { // case "17.29"
       // Performance note: moving digits might not be optimal.
-      _CSTD memmove(_First, _First + 1, static_cast<size_t>(_Whole_digits));
+      std::memmove(_First, _First + 1, static_cast<size_t>(_Whole_digits));
       _First[_Whole_digits] = '.';
     } else { // case "0.001729"
       // Performance note: a larger memset() followed by overwriting '.' might be more efficient.
       _First[0] = '0';
       _First[1] = '.';
-      _CSTD memset(_First + 2, '0', static_cast<size_t>(-_Whole_digits));
+      std::memset(_First + 2, '0', static_cast<size_t>(-_Whole_digits));
     }
 
     return { _First + _Total_fixed_length, errc{} };
@@ -2146,10 +2150,10 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
     const uint32_t __c1 = (__c / 100) << 1;
     const uint32_t __d0 = (__d % 100) << 1;
     const uint32_t __d1 = (__d / 100) << 1;
-    _CSTD memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c0, 2);
-    _CSTD memcpy(__result + __olength - __i - 3, __DIGIT_TABLE + __c1, 2);
-    _CSTD memcpy(__result + __olength - __i - 5, __DIGIT_TABLE + __d0, 2);
-    _CSTD memcpy(__result + __olength - __i - 7, __DIGIT_TABLE + __d1, 2);
+    std::memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c0, 2);
+    std::memcpy(__result + __olength - __i - 3, __DIGIT_TABLE + __c1, 2);
+    std::memcpy(__result + __olength - __i - 5, __DIGIT_TABLE + __d0, 2);
+    std::memcpy(__result + __olength - __i - 7, __DIGIT_TABLE + __d1, 2);
     __i += 8;
   }
   uint32_t __output2 = static_cast<uint32_t>(__output);
@@ -2162,14 +2166,14 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
     __output2 /= 10000;
     const uint32_t __c0 = (__c % 100) << 1;
     const uint32_t __c1 = (__c / 100) << 1;
-    _CSTD memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c0, 2);
-    _CSTD memcpy(__result + __olength - __i - 3, __DIGIT_TABLE + __c1, 2);
+    std::memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c0, 2);
+    std::memcpy(__result + __olength - __i - 3, __DIGIT_TABLE + __c1, 2);
     __i += 4;
   }
   if (__output2 >= 100) {
     const uint32_t __c = (__output2 % 100) << 1;
     __output2 /= 100;
-    _CSTD memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c, 2);
+    std::memcpy(__result + __olength - __i - 1, __DIGIT_TABLE + __c, 2);
     __i += 2;
   }
   if (__output2 >= 10) {
@@ -2201,11 +2205,11 @@ _NODISCARD inline to_chars_result __to_chars(char* const _First, char* const _La
 
   if (_Scientific_exponent >= 100) {
     const int32_t __c = _Scientific_exponent % 10;
-    _CSTD memcpy(__result + __index, __DIGIT_TABLE + 2 * (_Scientific_exponent / 10), 2);
+    std::memcpy(__result + __index, __DIGIT_TABLE + 2 * (_Scientific_exponent / 10), 2);
     __result[__index + 2] = static_cast<char>('0' + __c);
     __index += 3;
   } else {
-    _CSTD memcpy(__result + __index, __DIGIT_TABLE + 2 * _Scientific_exponent, 2);
+    std::memcpy(__result + __index, __DIGIT_TABLE + 2 * _Scientific_exponent, 2);
     __index += 2;
   }
 
@@ -2257,7 +2261,7 @@ _NODISCARD inline to_chars_result __d2s_buffered_n(char* const _First, char* con
         return { _Last, errc::value_too_large };
       }
 
-      _CSTD memcpy(_First, "0e+00", 5);
+      std::memcpy(_First, "0e+00", 5);
 
       return { _First + 5, errc{} };
     }
@@ -2327,7 +2331,7 @@ _NODISCARD inline to_chars_result __d2s_buffered_n(char* const _First, char* con
 template <class _Floating>
 _NODISCARD to_chars_result _Floating_to_chars_ryu(
     char* const _First, char* const _Last, const _Floating _Value, const chars_format _Fmt) noexcept {
-    if constexpr (is_same_v<_Floating, float>) {
+    if constexpr (std::is_same_v<_Floating, float>) {
         return __f2s_buffered_n(_First, _Last, _Value, _Fmt);
     } else {
         return __d2s_buffered_n(_First, _Last, _Value, _Fmt);

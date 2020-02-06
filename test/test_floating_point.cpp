@@ -20,33 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Copyright (c) Microsoft Corporation.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#include <catch.hpp>
 
-// * add constexpr modifiers to '_Bit_cast'
+#include <charconv/charconv.hpp>
 
-#pragma once
+namespace proposal = nstd;
 
-#include <type_traits>
+#include <array>
+#include <cstring>
+#include <iterator>
 
-#include "third_party/ieee754.hpp"
+TEST_CASE("[to_chars] float") {
+    auto test = []() constexpr -> bool {
+        std::array<char, 10> str = {};
+        if (auto [p, ec] = proposal::to_chars(str.data(), str.data() + str.size(), 42.0F); ec == std::errc{}) {
+            return str[0] == '4' && str[1] == '2';
+        }
+        return false;
+    };
 
-namespace nstd {
-
-template <class _To, class _From>
-constexpr _To _Bit_cast(const _From& _From_obj) noexcept {
-    static_assert(sizeof(_To) == sizeof(_From));
-    static_assert(std::is_trivially_copyable_v<_To>);
-    static_assert(std::is_trivially_copyable_v<_From>);
-#if defined(__cpp_lib_bit_cast)
-    return __builtin_bit_cast(_To_obj, _From_obj);
-#else
-    if constexpr (std::is_floating_point_v<_From> || std::is_floating_point_v<_To>) {
-        return static_cast<_To>(third_party::ieee754(_From_obj));
-    } else {
-        static_assert(sizeof(_To) == 0, "not implemented");
-    }
-#endif
+    //constexpr auto test_to_chars_float = test();
+    //static_assert(test_to_chars_float);
+    REQUIRE(test());
 }
 
-} // namespace nstd

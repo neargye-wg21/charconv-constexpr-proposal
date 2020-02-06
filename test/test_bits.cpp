@@ -22,7 +22,7 @@
 
 #include <catch.hpp>
 
-#include <charconv/floating_point/bit_cast.hpp>
+#include "third_party/bits.hpp"
 
 #include <cstring>
 
@@ -33,13 +33,11 @@ namespace third_party {
     }
 }
 
-namespace proposal = nstd;
-
 TEST_CASE("[ieee754<float>]") {
-    static_assert(proposal::_Bit_cast<uint32_t>(1.0f) == 0x3F80'0000);
-    static_assert(proposal::_Bit_cast<uint32_t>(0.3f) == 0x3E99'999A);
-    static_assert(proposal::_Bit_cast<uint32_t>(std::numeric_limits<float>::infinity()) == 0x7F80'0000);
-    static_assert(proposal::_Bit_cast<uint32_t>(-std::numeric_limits<float>::infinity()) == 0xFF80'0000);
+    static_assert(third_party::bit_cast<uint32_t>(1.0f) == 0x3F80'0000);
+    static_assert(third_party::bit_cast<uint32_t>(0.3f) == 0x3E99'999A);
+    static_assert(third_party::bit_cast<uint32_t>(std::numeric_limits<float>::infinity()) == 0x7F80'0000);
+    static_assert(third_party::bit_cast<uint32_t>(-std::numeric_limits<float>::infinity()) == 0xFF80'0000);
 
     uint32_t i = 0;
     while (true) {
@@ -68,10 +66,10 @@ TEST_CASE("[ieee754<float>]") {
 }
 
 TEST_CASE("[ieee754<double>]") {
-    static_assert(proposal::_Bit_cast<uint64_t>(1.0) == 0x3FF0'0000'0000'0000ull);
-    static_assert(proposal::_Bit_cast<uint64_t>(0.3) == 0x3FD3'3333'3333'3333ull);
-    static_assert(proposal::_Bit_cast<uint64_t>(std::numeric_limits<double>::infinity()) == 0x7FF0'0000'0000'0000ull);
-    static_assert(proposal::_Bit_cast<uint64_t>(-std::numeric_limits<double>::infinity()) == 0xFFF0'0000'0000'0000ull);
+    static_assert(third_party::bit_cast<uint64_t>(1.0) == 0x3FF0'0000'0000'0000ull);
+    static_assert(third_party::bit_cast<uint64_t>(0.3) == 0x3FD3'3333'3333'3333ull);
+    static_assert(third_party::bit_cast<uint64_t>(std::numeric_limits<double>::infinity()) == 0x7FF0'0000'0000'0000ull);
+    static_assert(third_party::bit_cast<uint64_t>(-std::numeric_limits<double>::infinity()) == 0xFFF0'0000'0000'0000ull);
 
     uint64_t i = 0;
     while (true) {

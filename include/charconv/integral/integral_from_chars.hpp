@@ -26,7 +26,6 @@
 // Changes:
 // * add constexpr modifiers to '_Integer_from_chars'
 // * add default initialize '_Risky_val' and '_Max_digit'
-// * add static_assert(std::is_integral_v<_RawTy>)
 // * add [[maybe_unused]] to _Uint_max, _Int_max, _Abs_int_min.
 
 #pragma once
@@ -41,7 +40,6 @@ namespace nstd {
 
 template <class _RawTy>
 _NODISCARD constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
-    static_assert(std::is_integral_v<_RawTy>);
     _Adl_verify_range(_First, _Last);
     _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
 

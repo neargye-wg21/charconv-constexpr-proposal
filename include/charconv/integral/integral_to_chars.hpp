@@ -27,7 +27,6 @@
 // * add constexpr modifiers to '_Integer_to_chars'
 // * add default initialize '_Buff'
 // * change '_CSTD memcpy' to 'third_party::trivial_copy'
-// * add static_assert(std::is_integral_v<_RawTy>)
 
 #pragma once
 
@@ -44,7 +43,6 @@ namespace nstd {
 
 template <class _RawTy>
 _NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, const _RawTy _Raw_value, const int _Base) noexcept {
-    static_assert(std::is_integral_v<_RawTy>);
     _Adl_verify_range(_First, _Last);
     _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
 

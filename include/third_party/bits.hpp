@@ -20,13 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Copyright (c) Microsoft Corporation.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-
-// Changes:
-// * add constexpr modifiers to 'to_chars' and 'from_chars'
-
 #pragma once
 
-#include "integral/charconv_integral.hpp"
-#include "floating_point/charconv_floating_point.hpp"
+#include <type_traits>
+
+#if !defined(__cpp_lib_bit_cast)
+#include "third_party/ieee754.hpp"
+#endif
+
+// TODO _BitScanForward, _BitScanReverse
+
+namespace third_party {
+
+template <class _To, class _From>
+constexpr _To bit_cast(const _From& _From_obj) noexcept {
+    static_assert(sizeof(_To) == sizeof(_From));
+    static_assert(std::is_trivially_copyable_v<_To>);
+    static_assert(std::is_trivially_copyable_v<_From>);
+#if defined(__cpp_lib_bit_cast)
+    return __builtin_bit_cast(_To_obj, _From_obj);
+#else
+    if constexpr (std::is_floating_point_v<_From> || std::is_floating_point_v<_To>) {
+        return static_cast<_To>(third_party::ieee754(_From_obj));
+    } else {
+        static_assert(sizeof(_To) == 0, "not implemented");
+    }
+#endif
+}
+
+} // namespace third_party

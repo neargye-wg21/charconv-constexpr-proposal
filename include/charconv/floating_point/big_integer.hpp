@@ -37,14 +37,6 @@
 
 namespace nstd {
 
-constexpr unsigned char _BitScanReverse(unsigned long * Index, unsigned long Mask) {
-    return 0;  //TODO
-}
-
-constexpr unsigned char _BitScanReverse64(unsigned long * Index, unsigned __int64 Mask) {
-    return 0; //TODO
-}
-
 struct _Big_integer_flt {
     constexpr _Big_integer_flt() noexcept : _Myused(0) {}
 
@@ -113,7 +105,7 @@ _NODISCARD constexpr _Big_integer_flt _Make_big_integer_flt_power_of_two(const u
     const uint32_t _Bit_index     = _Power % _Big_integer_flt::_Element_bits;
 
     _Big_integer_flt _Xval{};
-    _CSTD memset(_Xval._Mydata, 0, _Element_index * sizeof(uint32_t));
+    std::memset(_Xval._Mydata, 0, _Element_index * sizeof(uint32_t));
     _Xval._Mydata[_Element_index] = 1u << _Bit_index;
     _Xval._Myused                 = _Element_index + 1;
     return _Xval;
