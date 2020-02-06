@@ -22,8 +22,9 @@
 
 #pragma once
 
-#include <type_traits>
+#include <cstdint>
 #include <limits>
+#include <type_traits>
 
 #include "charconv/floating_point/floating_traits.hpp"
 

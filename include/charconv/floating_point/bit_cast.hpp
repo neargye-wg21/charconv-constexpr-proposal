@@ -23,6 +23,8 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// * add constexpr modifiers to '_Bit_cast'
+
 #pragma once
 
 #include <type_traits>
@@ -47,4 +49,4 @@ constexpr _To _Bit_cast(const _From& _From_obj) noexcept {
 #endif
 }
 
-}
+} // namespace nstd

@@ -35,17 +35,51 @@ inline constexpr bool is_constant_evaluated() noexcept {
 #endif
 }
 
-inline constexpr void chars_copy(char* dest, const char* src, std::size_t count) {
+template <class _RawTy>
+inline constexpr void trivial_copy(_RawTy* dest, const _RawTy* src, std::size_t count) {
+    static_assert(std::is_trivial_v<_RawTy>);
     if (is_constant_evaluated()) {
 #if defined(__clang__)
         static_cast<void>(__builtin_memcpy(dest, src, count));
 #else
+        count /= sizeof(_RawTy);
         for (std::size_t i = 0; i < count; ++i) {
             dest[i] = src[i];
         }
 #endif
     } else {
         static_cast<void>(std::memcpy(dest, src, count));
+    }
+}
+
+template <class _RawTy>
+inline constexpr void trivial_move(_RawTy* dest, const _RawTy* src, std::size_t count) {
+    static_assert(std::is_trivial_v<_RawTy>);
+    if (is_constant_evaluated()) {
+#if defined(__clang__)
+        static_cast<void>(__builtin_memmove(dest, src, count));
+#else
+    // TODO: move
+        count /= sizeof(_RawTy);
+        for (std::size_t i = 0; i < count; ++i) {
+            dest[i] = src[i];
+        }
+#endif
+    } else {
+        static_cast<void>(std::memmove(dest, src, count));
+    }
+}
+
+template <class _RawTy>
+inline constexpr void trivial_fill(_RawTy* dest, _RawTy value, std::size_t count) {
+    static_assert(std::is_trivial_v<_RawTy>);
+    if (is_constant_evaluated()) {
+        count /= sizeof(_RawTy);
+        for (std::size_t i = 0; i < count; ++i) {
+            dest[i] = value;
+        }
+    } else {
+        static_cast<void>(std::memset(dest, static_cast<int>(value), count));
     }
 }
 

@@ -26,7 +26,7 @@
 // Changes:
 // * add constexpr modifiers to '_Integer_to_chars'
 // * add default initialize '_Buff'
-// * change '_CSTD memcpy' to 'third_party::chars_copy'
+// * change '_CSTD memcpy' to 'third_party::trivial_copy'
 // * add static_assert(std::is_integral_v<_RawTy>)
 
 #pragma once
@@ -149,7 +149,7 @@ _NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const
     }
 
     //[neargye] constexpr copy chars. P1944 fix this?
-    third_party::chars_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
+    third_party::trivial_copy(_First, _RNext, static_cast<size_t>(_Digits_written));
 
     return {_First + _Digits_written, errc{}};
 }
