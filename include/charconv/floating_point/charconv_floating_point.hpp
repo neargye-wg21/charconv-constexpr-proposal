@@ -31,6 +31,7 @@
 #include "charconv/detail/entity.hpp"
 
 #include "floating_point_to_chars.hpp"
+#include "floating_point_from_chars.hpp"
 
 namespace nstd {
 
@@ -60,6 +61,26 @@ constexpr to_chars_result to_chars(char* const _First, char* const _Last, const 
 }
 constexpr to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value, const chars_format _Fmt, const int _Precision) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_precision>(_First, _Last, static_cast<double>(_Value), _Fmt, _Precision);
+}
+
+constexpr from_chars_result from_chars(const char* const _First, const char* const _Last, float& _Value,
+    const chars_format _Fmt = chars_format::general) noexcept /* strengthened */ {
+    return _Floating_from_chars(_First, _Last, _Value, _Fmt);
+}
+constexpr from_chars_result from_chars(const char* const _First, const char* const _Last, double& _Value,
+    const chars_format _Fmt = chars_format::general) noexcept /* strengthened */ {
+    return _Floating_from_chars(_First, _Last, _Value, _Fmt);
+}
+constexpr from_chars_result from_chars(const char* const _First, const char* const _Last, long double& _Value,
+    const chars_format _Fmt = chars_format::general) noexcept /* strengthened */ {
+    double _Dbl = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    const from_chars_result _Result = _Floating_from_chars(_First, _Last, _Dbl, _Fmt);
+
+    if (_Result.ec == errc{}) {
+        _Value = _Dbl;
+    }
+
+    return _Result;
 }
 
 } // namespace nstd

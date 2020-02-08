@@ -33,14 +33,15 @@
 
 #include "charconv/detail/detail.hpp"
 
+#include "third_party/bits.hpp"
 #include "third_party/constexpr_utility.hpp"
 
 namespace nstd {
 
 struct _Big_integer_flt {
-    constexpr _Big_integer_flt() noexcept : _Myused(0) {}
+    constexpr _Big_integer_flt() noexcept : _Myused(0), _Mydata{} {}
 
-    constexpr _Big_integer_flt(const _Big_integer_flt& _Other) noexcept : _Myused(_Other._Myused) {
+    constexpr _Big_integer_flt(const _Big_integer_flt& _Other) noexcept : _Myused(_Other._Myused), _Mydata{} {
         //[neargye] constexpr copy uint32_t. P1944 fix this?
         third_party::trivial_copy(_Mydata, _Other._Mydata, _Other._Myused * sizeof(uint32_t));
     }
@@ -105,16 +106,16 @@ _NODISCARD constexpr _Big_integer_flt _Make_big_integer_flt_power_of_two(const u
     const uint32_t _Bit_index     = _Power % _Big_integer_flt::_Element_bits;
 
     _Big_integer_flt _Xval{};
-    std::memset(_Xval._Mydata, 0, _Element_index * sizeof(uint32_t));
+    third_party::trivial_fill(_Xval._Mydata, (uint32_t)0, _Element_index * sizeof(uint32_t));
     _Xval._Mydata[_Element_index] = 1u << _Bit_index;
     _Xval._Myused                 = _Element_index + 1;
     return _Xval;
 }
 
 _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint32_t _Value) noexcept {
-    unsigned long _Index; // Intentionally uninitialized for better codegen
+    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
 
-    if (_BitScanReverse(&_Index, _Value)) {
+    if (third_party::bit_scan_reverse(&_Index, _Value)) {
         return _Index + 1;
     }
 
@@ -122,22 +123,22 @@ _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint32_t _Value) noexcept 
 }
 
 _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint64_t _Value) noexcept {
-    unsigned long _Index; // Intentionally uninitialized for better codegen
+    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
 
 #ifdef _WIN64
-    if (_BitScanReverse64(&_Index, _Value)) {
+    if (third_party::bit_scan_reverse(&_Index, _Value)) {
         return _Index + 1;
     }
 #else // ^^^ 64-bit ^^^ / vvv 32-bit vvv
     uint32_t _Ui32 = static_cast<uint32_t>(_Value >> 32);
 
-    if (_BitScanReverse(&_Index, _Ui32)) {
+    if (third_party::bit_scan_reverse(&_Index, _Ui32)) {
         return _Index + 1 + 32;
     }
 
     _Ui32 = static_cast<uint32_t>(_Value);
 
-    if (_BitScanReverse(&_Index, _Ui32)) {
+    if (third_party::bit_scan_reverse(&_Index, _Ui32)) {
         return _Index + 1;
     }
 #endif // ^^^ 32-bit ^^^
@@ -154,9 +155,9 @@ _NODISCARD constexpr uint32_t _Bit_scan_reverse(const _Big_integer_flt& _Xval) n
 
     _STL_INTERNAL_CHECK(_Xval._Mydata[_Bx] != 0); // _Big_integer_flt should always be trimmed
 
-    unsigned long _Index; // Intentionally uninitialized for better codegen
+    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
 
-    _BitScanReverse(&_Index, _Xval._Mydata[_Bx]); // assumes _Xval._Mydata[_Bx] != 0
+    third_party::bit_scan_reverse(&_Index, _Xval._Mydata[_Bx]); // assumes _Xval._Mydata[_Bx] != 0
 
     return _Index + 1 + _Bx * _Big_integer_flt::_Element_bits;
 }
@@ -224,7 +225,7 @@ _NODISCARD constexpr bool _Shift_left(_Big_integer_flt& _Xval, const uint32_t _N
     }
 
     //[neargye] constexpr fill uint32_t. P1944 fix this?
-    third_party::trivial_fill(_Xval._Mydata, 0, _Unit_shift * sizeof(uint32_t));
+    third_party::trivial_fill(_Xval._Mydata, (uint32_t)0, _Unit_shift * sizeof(uint32_t));
 
     return true;
 }
@@ -487,7 +488,7 @@ _NODISCARD constexpr bool _Multiply_by_power_of_ten(_Big_integer_flt& _Xval, con
         const uint32_t* const _Source = _Large_power_data + _Index._Offset;
 
         //[neargye] constexpr fill uint32_t. P1944 fix this?
-        third_party::trivial_fill(_Multiplier._Mydata, 0, _Index._Zeroes * sizeof(uint32_t));
+        third_party::trivial_fill(_Multiplier._Mydata, (uint32_t)0, _Index._Zeroes * sizeof(uint32_t));
         //[neargye] constexpr copy uint32_t. P1944 fix this?
         third_party::trivial_copy(_Multiplier._Mydata + _Index._Zeroes, _Source, _Index._Size * sizeof(uint32_t));
 
@@ -512,8 +513,8 @@ _NODISCARD constexpr bool _Multiply_by_power_of_ten(_Big_integer_flt& _Xval, con
 
 // Computes the number of zeroes higher than the most significant set bit in _Ux
 _NODISCARD constexpr uint32_t _Count_sequential_high_zeroes(const uint32_t _Ux) noexcept {
-    unsigned long _Index; // Intentionally uninitialized for better codegen
-    return _BitScanReverse(&_Index, _Ux) ? 31 - _Index : 32;
+    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    return third_party::bit_scan_reverse(&_Index, _Ux) ? 31 - _Index : 32;
 }
 
 // This high-precision integer division implementation was translated from the implementation of

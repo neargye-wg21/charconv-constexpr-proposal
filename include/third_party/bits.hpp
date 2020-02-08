@@ -64,6 +64,18 @@ constexpr bool bit_scan_forward(unsigned long* _Index, uint32_t _Mask) noexcept 
     return true;
 }
 
+constexpr bool bit_scan_reverse(unsigned long* _Index, uint32_t _Mask) noexcept {
+    if(_Mask == 0) {
+        return false;
+    }
+#if defined(__cpp_lib_bit_cast)
+    (void)_BitScanReverse(_Index, _Mask);
+#else
+    *_Index = __builtin_clzl(_Mask);
+#endif
+    return true;
+}
+
 #if defined(_WIN64) || defined(__x86_64__)
 constexpr bool bit_scan_forward(unsigned long* _Index, uint64_t _Mask) noexcept {
     if(_Mask == 0) {
@@ -73,6 +85,18 @@ constexpr bool bit_scan_forward(unsigned long* _Index, uint64_t _Mask) noexcept 
     (void)_BitScanForward64(_Index, _Mask);
 #else
     *_Index = __builtin_ctzll(_Mask);
+#endif
+    return true;
+}
+
+constexpr bool bit_scan_reverse(unsigned long* _Index, uint64_t _Mask) noexcept {
+    if(_Mask == 0) {
+        return false;
+    }
+#if defined(__cpp_lib_bit_cast)
+    (void)_BitScanReverse64(_Index, _Mask);
+#else
+    *_Index = __builtin_clzll(_Mask);
 #endif
     return true;
 }

@@ -252,7 +252,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
 
             if (_Number_of_bits_remaining == 0) {
                 // We've finished printing _Adjusted_mantissa, so all remaining hexits are '0'.
-                std::memset(_First, '0', static_cast<size_t>(_Precision));
+                third_party::trivial_fill(_First, '0', static_cast<size_t>(_Precision));
                 _First += _Precision;
                 break;
             }

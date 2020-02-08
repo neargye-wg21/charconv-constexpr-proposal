@@ -1478,7 +1478,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
       // Done!
     } else if (_Whole_digits > 0) { // case "17.29"
       // Performance note: moving digits might not be optimal.
-      std::memmove(_First, _First + 1, static_cast<size_t>(_Whole_digits));
+      third_party::trivial_move(_First, _First + 1, static_cast<size_t>(_Whole_digits));
       _First[_Whole_digits] = '.';
     } else { // case "0.001729"
       // Performance note: a larger memset() followed by overwriting '.' might be more efficient.
@@ -2117,7 +2117,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
       // Done!
     } else if (_Whole_digits > 0) { // case "17.29"
       // Performance note: moving digits might not be optimal.
-      std::memmove(_First, _First + 1, static_cast<size_t>(_Whole_digits));
+      third_party::trivial_move(_First, _First + 1, static_cast<size_t>(_Whole_digits));
       _First[_Whole_digits] = '.';
     } else { // case "0.001729"
       // Performance note: a larger memset() followed by overwriting '.' might be more efficient.
