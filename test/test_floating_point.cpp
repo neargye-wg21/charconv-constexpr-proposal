@@ -39,8 +39,8 @@ TEST_CASE("[to_chars] float") {
         return false;
     };
 
-    //constexpr auto test_to_chars_float = test();
-    //static_assert(test_to_chars_float);
+    constexpr auto test_to_chars_float = test();
+    static_assert(test_to_chars_float);
     REQUIRE(test());
 }
 

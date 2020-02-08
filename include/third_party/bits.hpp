@@ -24,11 +24,15 @@
 
 #include <type_traits>
 
+#if __has_include(<bit>)
+#include <bit>
+#endif
+
 #if !defined(__cpp_lib_bit_cast)
 #include "third_party/ieee754.hpp"
 #endif
 
-// TODO _BitScanForward, _BitScanReverse
+// TODO _BitScanReverse
 
 namespace third_party {
 
@@ -47,5 +51,31 @@ constexpr _To bit_cast(const _From& _From_obj) noexcept {
     }
 #endif
 }
+
+constexpr bool bit_scan_forward(unsigned long* _Index, uint32_t _Mask) noexcept {
+    if(_Mask == 0) {
+        return false;
+    }
+#if defined(__cpp_lib_bit_cast)
+    (void)_BitScanForward(_Index, _Mask);
+#else
+    *_Index = __builtin_ctzl(_Mask);
+#endif
+    return true;
+}
+
+#if defined(_WIN64) || defined(__x86_64__)
+constexpr bool bit_scan_forward(unsigned long* _Index, uint64_t _Mask) noexcept {
+    if(_Mask == 0) {
+        return false;
+    }
+#if defined(__cpp_lib_bit_cast)
+    (void)_BitScanForward64(_Index, _Mask);
+#else
+    *_Index = __builtin_ctzll(_Mask);
+#endif
+    return true;
+}
+#endif
 
 } // namespace third_party

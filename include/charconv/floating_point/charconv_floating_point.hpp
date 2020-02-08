@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // Changes:
-// * add inline modifiers to 'to_chars' and 'from_chars'
+// * add constexpr modifiers to 'to_chars' and 'from_chars'
 
 #pragma once
 
@@ -34,31 +34,31 @@
 
 namespace nstd {
 
-inline to_chars_result to_chars(char* const _First, char* const _Last, const float _Value) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const float _Value) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Plain>(_First, _Last, _Value, chars_format{}, 0);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const double _Value) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const double _Value) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Plain>(_First, _Last, _Value, chars_format{}, 0);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Plain>(_First, _Last, static_cast<double>(_Value), chars_format{}, 0);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const float _Value, const chars_format _Fmt) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const float _Value, const chars_format _Fmt) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_only>(_First, _Last, _Value, _Fmt, 0);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const double _Value, const chars_format _Fmt) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const double _Value, const chars_format _Fmt) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_only>(_First, _Last, _Value, _Fmt, 0);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value, const chars_format _Fmt) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value, const chars_format _Fmt) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_only>(_First, _Last, static_cast<double>(_Value), _Fmt, 0);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const float _Value, const chars_format _Fmt, const int _Precision) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const float _Value, const chars_format _Fmt, const int _Precision) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_precision>(_First, _Last, _Value, _Fmt, _Precision);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const double _Value, const chars_format _Fmt, const int _Precision) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const double _Value, const chars_format _Fmt, const int _Precision) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_precision>(_First, _Last, _Value, _Fmt, _Precision);
 }
-inline to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value, const chars_format _Fmt, const int _Precision) noexcept {
+constexpr to_chars_result to_chars(char* const _First, char* const _Last, const long double _Value, const chars_format _Fmt, const int _Precision) noexcept {
     return _Floating_to_chars<_Floating_to_chars_overload::_Format_precision>(_First, _Last, static_cast<double>(_Value), _Fmt, _Precision);
 }
 
