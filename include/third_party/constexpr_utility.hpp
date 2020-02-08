@@ -42,9 +42,11 @@ inline constexpr void trivial_copy(_RawTy* dest, const _RawTy* src, std::size_t 
 #if defined(__clang__)
         static_cast<void>(__builtin_memcpy(dest, src, count));
 #else
-        count /= sizeof(_RawTy);
-        for (std::size_t i = 0; i < count; ++i) {
-            dest[i] = src[i];
+        if (dest != nullptr && src != nullptr && count != 0) {
+            count /= sizeof(_RawTy);
+            for (std::size_t i = 0; i < count; ++i) {
+                dest[i] = src[i];
+            }
         }
 #endif
     } else {
@@ -59,11 +61,21 @@ inline constexpr void trivial_move(_RawTy* dest, const _RawTy* src, std::size_t 
 #if defined(__clang__)
         static_cast<void>(__builtin_memmove(dest, src, count));
 #else
-    // TODO: move
+    if (dest != nullptr && src != nullptr && count != 0) {
+        _RawTy* d = dest;
         count /= sizeof(_RawTy);
-        for (std::size_t i = 0; i < count; ++i) {
-            dest[i] = src[i];
+        if (dest > src) {
+            const _RawTy* s = src + count;
+            d += count;
+            for (; count; --count) {
+            *(--d) = *(--s);
+            }
+        } else if (dest < src) {
+            for (; count; --count) {
+            *(d++) = *(src++);
+            }
         }
+    }
 #endif
     } else {
         static_cast<void>(std::memmove(dest, src, count));

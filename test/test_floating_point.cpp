@@ -45,16 +45,14 @@ TEST_CASE("[to_chars] float") {
 }
 
 TEST_CASE("[from_chars] float") {
-    auto test = []() constexpr -> bool {
+    auto test = []() constexpr -> float {
         std::array<char, 10> str{"42.2"};
-        float result = -1;
-        if (auto [p, ec] = proposal::from_chars(str.data(), str.data() + str.size(), result); ec == std::errc{}) {
-            return (result - 42.2F) < 0;
-        }
-        return false;
+        float result = std::numeric_limits<float>::quiet_NaN();
+        (void)proposal::from_chars(str.data(), str.data() + str.size(), result);
+        return result;
     };
 
-    constexpr auto test_from_chars_float = test();
-    //static_assert(test_from_chars_float);
-    //REQUIRE(test());
+    constexpr auto float_from_chars = test();
+    //static_assert(float_from_chars == 42.2F);
+    REQUIRE(float_from_chars == 42.2F);
 }
