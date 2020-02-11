@@ -32,8 +32,6 @@
 #include "third_party/ieee754.hpp"
 #endif
 
-// TODO _BitScanReverse
-
 namespace third_party {
 
 template <class _To, class _From>
@@ -71,7 +69,7 @@ constexpr bool bit_scan_reverse(unsigned long* _Index, uint32_t _Mask) noexcept 
 #if defined(__cpp_lib_bit_cast)
     (void)_BitScanReverse(_Index, _Mask);
 #else
-    *_Index = __builtin_clzl(_Mask);
+    *_Index = 31 - __builtin_clz(_Mask);
 #endif
     return true;
 }
@@ -96,7 +94,7 @@ constexpr bool bit_scan_reverse(unsigned long* _Index, uint64_t _Mask) noexcept 
 #if defined(__cpp_lib_bit_cast)
     (void)_BitScanReverse64(_Index, _Mask);
 #else
-    *_Index = __builtin_clzll(_Mask);
+    *_Index = 63 - __builtin_clzll(_Mask);
 #endif
     return true;
 }

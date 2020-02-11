@@ -30,6 +30,18 @@ namespace proposal = nstd;
 #include <cstring>
 #include <iterator>
 
+namespace Catch {
+    template <typename T>
+    struct StringMaker<std::optional<T>> {
+        static std::string convert(const std::optional<T>& value ) {
+            if (value)
+                return StringMaker<T>::convert(*value);
+            else
+                return "null";
+        }
+    };
+}
+
 TEST_CASE("[to_chars] float") {
     auto test = []() constexpr -> bool {
         std::array<char, 10> str = {};
@@ -45,14 +57,27 @@ TEST_CASE("[to_chars] float") {
 }
 
 TEST_CASE("[from_chars] float") {
-    auto test = []() constexpr -> float {
-        std::array<char, 10> str{"42.2"};
-        float result = std::numeric_limits<float>::quiet_NaN();
-        (void)proposal::from_chars(str.data(), str.data() + str.size(), result);
-        return result;
+    Catch::StringMaker<float>::precision = 15;
+
+    auto parse_float = [](std::string_view str) constexpr -> std::optional<float> {
+        float result = -1;
+        if (auto [p, ec] = proposal::from_chars(str.data(), str.data() + str.size(), result); ec == std::errc{}) {
+            return result;
+        }
+        return std::nullopt;
     };
 
-    constexpr auto float_from_chars = test();
-    //static_assert(float_from_chars == 42.2F);
-    REQUIRE(float_from_chars == 42.2F);
+#define TEST_NUMBER(X) { constexpr auto result = parse_float(#X); CHECK(result == Approx(X)); }
+
+    TEST_NUMBER(42.2)
+    TEST_NUMBER(-1000.0)
+    TEST_NUMBER(-0.0)
+    // TEST_NUMBER(+0.0) // valid?
+    TEST_NUMBER(1e-5)
+    TEST_NUMBER(1e+5)
+    TEST_NUMBER(1e+8)
+    // TEST_NUMBER(1e+10)
+    // TEST_NUMBER(1e-10)
+
+#undef TEST_NUMBER
 }
