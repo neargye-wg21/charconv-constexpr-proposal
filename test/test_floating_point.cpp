@@ -29,6 +29,7 @@ namespace proposal = nstd;
 #include <array>
 #include <cstring>
 #include <iterator>
+#include <optional>
 
 namespace Catch {
     template <typename T>
