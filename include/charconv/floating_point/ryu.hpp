@@ -65,6 +65,7 @@
 // * change '__float_to_bits', __double_to_bits to 'third_party::bit_cast'
 // * change '_CSTD memcpy' to 'third_party::trivial_copy'
 // * change '_CSTD memset' to 'third_party::trivial_fill'
+// * change 'static constexpr' to 'constexpr' at _Max_shifted_mantissa, _Adjustment
 
 // [neargye] TODO cros-compiler
 #undef _M_X64 // [neargye] intrinsics unavailable _umul128() and __shiftright128()
