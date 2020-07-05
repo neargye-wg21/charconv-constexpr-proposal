@@ -61,8 +61,8 @@ _NODISCARD constexpr from_chars_result _Integer_from_chars(const char* const _Fi
     [[maybe_unused]] constexpr _Unsigned _Int_max     = static_cast<_Unsigned>(_Uint_max >> 1);
     [[maybe_unused]] constexpr _Unsigned _Abs_int_min = static_cast<_Unsigned>(_Int_max + 1);
 
-    _Unsigned _Risky_val = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    _Unsigned _Max_digit = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    _Unsigned _Risky_val;
+    _Unsigned _Max_digit;
 
     if constexpr (std::is_signed_v<_RawTy>) {
         if (_Minus_sign) {

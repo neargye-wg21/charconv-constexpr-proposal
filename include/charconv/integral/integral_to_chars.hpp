@@ -63,9 +63,9 @@ _NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const
     }
 
     constexpr std::size_t _Buff_size = sizeof(_Unsigned) * CHAR_BIT; // enough for base 2
-    char _Buff[_Buff_size]           = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    char* const _Buff_end            = _Buff + _Buff_size;
-    char* _RNext                     = _Buff_end;
+    char _Buff[_Buff_size];
+    char* const _Buff_end = _Buff + _Buff_size;
+    char* _RNext          = _Buff_end;
 
     switch (_Base) {
     case 10: { // Derived from _UIntegral_to_buff()
