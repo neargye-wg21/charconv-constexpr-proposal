@@ -25,7 +25,6 @@
 
 // Changes:
 // * add constexpr modifiers to '_Integer_from_chars'
-// * add default initialize '_Risky_val' and '_Max_digit'
 // * add [[maybe_unused]] to _Uint_max, _Int_max, _Abs_int_min.
 
 #pragma once

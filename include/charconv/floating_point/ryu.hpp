@@ -216,7 +216,7 @@ _NODISCARD constexpr uint64_t __umulh(const uint64_t __a, const uint64_t __b) {
   // Reuse the __ryu_umul128 implementation.
   // Optimizers will likely eliminate the instructions used to compute the
   // low part of the product.
-  uint64_t __hi = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint64_t __hi;
   (void) __ryu_umul128(__a, __b, &__hi);
   return __hi;
 }
@@ -363,12 +363,11 @@ _NODISCARD inline uint32_t __uint128_mod1e9(const uint64_t __vHi, const uint64_t
 #endif // ^^^ intrinsics available ^^^
 
 _NODISCARD constexpr uint32_t __mulShift_mod1e9(const uint64_t __m, const uint64_t* const __mul, const int32_t __j) {
-  //[neargye] default initialize for constexpr context. P1331 fix this?
-  uint64_t __high0 = {};                                          // 64
+  uint64_t __high0;                                          // 64
   const uint64_t __low0 = __ryu_umul128(__m, __mul[0], &__high0); // 0
-  uint64_t __high1 = {};                                          // 128
+  uint64_t __high1;                                          // 128
   const uint64_t __low1 = __ryu_umul128(__m, __mul[1], &__high1); // 64
-  uint64_t __high2 = {};                                          // 192
+  uint64_t __high2;                                          // 192
   const uint64_t __low2 = __ryu_umul128(__m, __mul[2], &__high2); // 128
   const uint64_t __s0low = __low0;                  // 0
   (void) __s0low; // unused
@@ -535,8 +534,8 @@ _NODISCARD constexpr to_chars_result __d2fixed_buffered_n(char* _First, char* co
   const uint64_t __ieeeMantissa = __bits & ((1ull << __DOUBLE_MANTISSA_BITS) - 1);
   const uint32_t __ieeeExponent = static_cast<uint32_t>(__bits >> __DOUBLE_MANTISSA_BITS);
 
-  int32_t __e2  = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-  uint64_t __m2 = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  int32_t __e2;
+  uint64_t __m2;
   if (__ieeeExponent == 0) {
     __e2 = 1 - __DOUBLE_BIAS - __DOUBLE_MANTISSA_BITS;
     __m2 = __ieeeMantissa;
@@ -726,8 +725,8 @@ _NODISCARD constexpr to_chars_result __d2exp_buffered_n(char* _First, char* cons
   const uint64_t __ieeeMantissa = __bits & ((1ull << __DOUBLE_MANTISSA_BITS) - 1);
   const uint32_t __ieeeExponent = static_cast<uint32_t>(__bits >> __DOUBLE_MANTISSA_BITS);
 
-  int32_t __e2  = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-  uint64_t __m2 = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  int32_t __e2;
+  uint64_t __m2;
   if (__ieeeExponent == 0) {
     __e2 = 1 - __DOUBLE_BIAS - __DOUBLE_MANTISSA_BITS;
     __m2 = __ieeeMantissa;
@@ -906,7 +905,7 @@ _NODISCARD constexpr to_chars_result __d2exp_buffered_n(char* _First, char* cons
     }
   }
 
-  char _Sign_character = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  char _Sign_character;
 
   if (__exp < 0) {
     _Sign_character = '-';
@@ -1046,8 +1045,8 @@ struct __floating_decimal_32 {
 };
 
 _NODISCARD constexpr __floating_decimal_32 __f2d(const uint32_t __ieeeMantissa, const uint32_t __ieeeExponent) {
-  int32_t __e2  = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-  uint32_t __m2 = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  int32_t __e2;
+  uint32_t __m2;
   if (__ieeeExponent == 0) {
     // We subtract 2 so that the bounds computation has 2 additional bits.
     __e2 = 1 - __FLOAT_BIAS - __FLOAT_MANTISSA_BITS - 2;
@@ -1067,8 +1066,8 @@ _NODISCARD constexpr __floating_decimal_32 __f2d(const uint32_t __ieeeMantissa, 
   const uint32_t __mm = 4 * __m2 - 1 - __mmShift;
 
   // Step 3: Convert to a decimal power base using 64-bit arithmetic.
-  uint32_t __vr = {}, __vp = {}, __vm = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-  int32_t __e10 = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint32_t __vr, __vp, __vm;
+  int32_t __e10;
   bool __vmIsTrailingZeros = false;
   bool __vrIsTrailingZeros = false;
   uint8_t __lastRemovedDigit = 0;
@@ -1130,7 +1129,7 @@ _NODISCARD constexpr __floating_decimal_32 __f2d(const uint32_t __ieeeMantissa, 
 
   // Step 4: Find the shortest decimal representation in the interval of valid representations.
   int32_t __removed = 0;
-  uint32_t __output = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint32_t __output;
   if (__vmIsTrailingZeros || __vrIsTrailingZeros) {
     // General case, which happens rarely (~4.0%).
     while (__vp / 10 > __vm / 10) {
@@ -1232,7 +1231,7 @@ _NODISCARD constexpr to_chars_result _Large_integer_to_chars(char* const _First,
 
   // If Ryu hasn't determined the total output length, we need to buffer the digits generated from right to left
   // by long division. The largest possible float is: 340'282346638'528859811'704183484'516925440
-  uint32_t _Blocks[4]    = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint32_t _Blocks[4];
   int32_t _Filled_blocks = 0;
   // From left to right, we're going to print:
   // _Data[0] will be [1, 10] digits.
@@ -1317,8 +1316,8 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
   int32_t _Scientific_exponent = _Ryu_exponent + static_cast<int32_t>(__olength) - 1;
 
   if (_Fmt == chars_format{}) {
-    int32_t _Lower = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    int32_t _Upper = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    int32_t _Lower;
+    int32_t _Upper;
 
     if (__olength == 1) {
       // Value | Fixed   | Scientific
@@ -1394,9 +1393,9 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
       return { _Last, errc::value_too_large };
     }
 
-    char* _Mid = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    char* _Mid;
     if (_Ryu_exponent > 0) { // case "172900"
-      bool _Can_use_ryu = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+      bool _Can_use_ryu;
 
       if (_Ryu_exponent > 10) { // 10^10 is the largest power of 10 that's exactly representable as a float.
         _Can_use_ryu = false;
@@ -1529,7 +1528,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
   }
 
   // Print decimal point if needed.
-  uint32_t __index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint32_t __index;
   if (__olength > 1) {
     __result[1] = '.';
     __index = __olength + 1;
@@ -1672,9 +1671,9 @@ _NODISCARD constexpr uint64_t __mulShiftAll(uint64_t __m, const uint64_t* const 
   uint64_t* const __vp, uint64_t* const __vm, const uint32_t __mmShift) { // TRANSITION, VSO#634761
   __m <<= 1;
   // __m is maximum 55 bits
-  uint64_t __tmp = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint64_t __tmp;
   const uint64_t __lo = __ryu_umul128(__m, __mul[0], &__tmp);
-  uint64_t __hi = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint64_t __hi;
   const uint64_t __mid = __tmp + __ryu_umul128(__m, __mul[1], &__hi);
   __hi += __mid < __tmp; // overflow into __hi
 
@@ -1735,8 +1734,8 @@ struct __floating_decimal_64 {
 };
 
 _NODISCARD constexpr __floating_decimal_64 __d2d(const uint64_t __ieeeMantissa, const uint32_t __ieeeExponent) {
-  int32_t __e2  = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-  uint64_t __m2 = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  int32_t __e2;
+  uint64_t __m2;
   if (__ieeeExponent == 0) {
     // We subtract 2 so that the bounds computation has 2 additional bits.
     __e2 = 1 - __DOUBLE_BIAS - __DOUBLE_MANTISSA_BITS - 2;
@@ -1757,8 +1756,8 @@ _NODISCARD constexpr __floating_decimal_64 __d2d(const uint64_t __ieeeMantissa, 
   // uint64_t __mm = __mv - 1 - __mmShift;
 
   // Step 3: Convert to a decimal power base using 128-bit arithmetic.
-  uint64_t __vr = {}, __vp = {}, __vm = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-  int32_t __e10 = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint64_t __vr, __vp, __vm;
+  int32_t __e10;
   bool __vmIsTrailingZeros = false;
   bool __vrIsTrailingZeros = false;
   if (__e2 >= 0) {
@@ -1818,7 +1817,7 @@ _NODISCARD constexpr __floating_decimal_64 __d2d(const uint64_t __ieeeMantissa, 
   // Step 4: Find the shortest decimal representation in the interval of valid representations.
   int32_t __removed = 0;
   uint8_t __lastRemovedDigit = 0;
-  uint64_t __output = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint64_t __output;
   // On average, we remove ~2 digits.
   if (__vmIsTrailingZeros || __vrIsTrailingZeros) {
     // General case, which happens rarely (~0.7%).
@@ -1900,7 +1899,7 @@ _NODISCARD constexpr __floating_decimal_64 __d2d(const uint64_t __ieeeMantissa, 
   }
   const int32_t __exp = __e10 + __removed;
 
-  __floating_decimal_64 __fd = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  __floating_decimal_64 __fd;
   __fd.__exponent = __exp;
   __fd.__mantissa = __output;
   return __fd;
@@ -1915,8 +1914,8 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
   int32_t _Scientific_exponent = _Ryu_exponent + static_cast<int32_t>(__olength) - 1;
 
   if (_Fmt == chars_format{}) {
-    int32_t _Lower = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    int32_t _Upper = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    int32_t _Lower;
+    int32_t _Upper;
 
     if (__olength == 1) {
       // Value | Fixed   | Scientific
@@ -1998,9 +1997,9 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
       return { _Last, errc::value_too_large };
     }
 
-    char* _Mid = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    char* _Mid;
     if (_Ryu_exponent > 0) { // case "172900"
-      bool _Can_use_ryu = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+      bool _Can_use_ryu;
 
       if (_Ryu_exponent > 22) { // 10^22 is the largest power of 10 that's exactly representable as a double.
         _Can_use_ryu = false;
@@ -2031,7 +2030,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
           2882303761517u, 576460752303u, 115292150460u, 23058430092u, 4611686018u, 922337203u, 184467440u,
           36893488u, 7378697u, 1475739u, 295147u, 59029u, 11805u, 2361u, 472u, 94u, 18u, 3u };
 
-        unsigned long _Trailing_zero_bits = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+        unsigned long _Trailing_zero_bits;
 #ifdef _WIN64
         (void) third_party::bit_scan_forward(&_Trailing_zero_bits, __v.__mantissa); // __v.__mantissa is guaranteed nonzero
 #else // ^^^ 64-bit ^^^ / vvv 32-bit vvv
@@ -2192,7 +2191,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
   }
 
   // Print decimal point if needed.
-  uint32_t __index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+  uint32_t __index;
   if (__olength > 1) {
     __result[1] = '.';
     __index = __olength + 1;

@@ -545,7 +545,7 @@ _NODISCARD constexpr from_chars_result _Ordinary_floating_from_chars(const char*
 
     // PERFORMANCE NOTE: _Fp_string is intentionally left uninitialized. Zero-initialization is quite expensive
     // and is unnecessary. The benefit of not zero-initializing is greatest for short inputs.
-    _Floating_point_string _Fp_string = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    _Floating_point_string _Fp_string;
 
     // Record the optional minus sign:
     _Fp_string._Myis_negative = _Minus_sign;

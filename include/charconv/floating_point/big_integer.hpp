@@ -113,7 +113,7 @@ _NODISCARD constexpr _Big_integer_flt _Make_big_integer_flt_power_of_two(const u
 }
 
 _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint32_t _Value) noexcept {
-    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    unsigned long _Index;
 
     if (third_party::bit_scan_reverse(&_Index, _Value)) {
         return _Index + 1;
@@ -123,7 +123,7 @@ _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint32_t _Value) noexcept 
 }
 
 _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint64_t _Value) noexcept {
-    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    unsigned long _Index;
 
 #ifdef _WIN64
     if (third_party::bit_scan_reverse(&_Index, _Value)) {
@@ -155,7 +155,7 @@ _NODISCARD constexpr uint32_t _Bit_scan_reverse(const _Big_integer_flt& _Xval) n
 
     _STL_INTERNAL_CHECK(_Xval._Mydata[_Bx] != 0); // _Big_integer_flt should always be trimmed
 
-    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    unsigned long _Index;
 
     third_party::bit_scan_reverse(&_Index, _Xval._Mydata[_Bx]); // assumes _Xval._Mydata[_Bx] != 0
 
@@ -513,7 +513,7 @@ _NODISCARD constexpr bool _Multiply_by_power_of_ten(_Big_integer_flt& _Xval, con
 
 // Computes the number of zeroes higher than the most significant set bit in _Ux
 _NODISCARD constexpr uint32_t _Count_sequential_high_zeroes(const uint32_t _Ux) noexcept {
-    unsigned long _Index = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    unsigned long _Index;
     return third_party::bit_scan_reverse(&_Index, _Ux) ? 31 - _Index : 32;
 }
 

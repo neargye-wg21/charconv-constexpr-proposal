@@ -25,7 +25,6 @@
 
 // Changes:
 // * add constexpr modifiers to '_Integer_to_chars'
-// * add default initialize '_Buff'
 // * change '_CSTD memcpy' to 'third_party::trivial_copy'
 
 #pragma once

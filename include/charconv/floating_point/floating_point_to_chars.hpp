@@ -88,7 +88,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
         _Adjusted_mantissa = _Ieee_mantissa; // already aligned (52 is divisible by 4)
     }
 
-    int32_t _Unbiased_exponent = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    int32_t _Unbiased_exponent;
 
     if (_Ieee_exponent == 0) { // zero or subnormal
         // implicit bit is 0
@@ -107,8 +107,8 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
     // _Unbiased_exponent is within [-126, 127] for float, [-1022, 1023] for double.
 
     // * Decompose _Unbiased_exponent into _Sign_character and _Absolute_exponent.
-    char _Sign_character        = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    uint32_t _Absolute_exponent = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    char _Sign_character;
+    uint32_t _Absolute_exponent;
 
     if (_Unbiased_exponent < 0) {
         _Sign_character    = '-';
@@ -122,7 +122,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
 
     // * Perform a single bounds check.
     {
-        int32_t _Exponent_length = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+        int32_t _Exponent_length;
 
         if (_Absolute_exponent < 10) {
             _Exponent_length = 1;
@@ -312,9 +312,8 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_shortest(
     const _Uint_type _Ieee_mantissa = _Uint_value & _Traits::_Denormal_mantissa_mask;
     const int32_t _Ieee_exponent    = static_cast<int32_t>(_Uint_value >> _Traits::_Exponent_shift);
 
-    //[neargye] default initialize for constexpr context. P1331 fix this?
-    char _Leading_hexit        = {}; // implicit bit
-    int32_t _Unbiased_exponent = {};
+    char _Leading_hexit; // implicit bit
+    int32_t _Unbiased_exponent;
 
     if (_Ieee_exponent == 0) { // subnormal
         _Leading_hexit     = '0';
@@ -344,8 +343,8 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_shortest(
         // The hexits after the decimal point correspond to the explicitly stored fraction bits.
         // float explicitly stores 23 fraction bits. 23 / 4 == 5.75, so we'll print at most 6 hexits.
         // double explicitly stores 52 fraction bits. 52 / 4 == 13, so we'll print at most 13 hexits.
-        _Uint_type _Adjusted_mantissa     = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-        int32_t _Number_of_bits_remaining = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+        _Uint_type _Adjusted_mantissa;
+        int32_t _Number_of_bits_remaining;
 
         if constexpr (std::is_same_v<_Floating, float>) {
             _Adjusted_mantissa        = _Ieee_mantissa << 1; // align to hexit boundary (23 isn't divisible by 4)
@@ -596,8 +595,8 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_general_precision(
 
     using _Tables = _General_precision_tables<_Floating>;
 
-    const _Uint_type* _Table_begin = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-    const _Uint_type* _Table_end   = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    const _Uint_type* _Table_begin;
+    const _Uint_type* _Table_end;
 
     if (_Precision <= _Tables::_Max_special_P) {
         _Table_begin = _Tables::_Special_X_table + (_Precision - 1) * (_Precision + 10) / 2;
@@ -641,7 +640,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_general_precision(
     // 0x1.fffffep+127f is 39 digits, plus 1 for '.', plus _Max_fixed_precision for '0' digits, equals 77.
     // 0x1.fffffffffffffp+1023 is 309 digits, plus 1 for '.', plus _Max_fixed_precision for '0' digits, equals 376.
 
-    char _Buffer[_Max_output_length]     = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    char _Buffer[_Max_output_length];
     const char* const _Significand_first = _Buffer; // e.g. "1.234"
     const char* _Significand_last        = nullptr;
     const char* _Exponent_first          = nullptr; // e.g. "e-05"
@@ -661,7 +660,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_general_precision(
         const to_chars_result _Buf_result =
             _Floating_to_chars_scientific_precision(_Buffer, std::end(_Buffer), _Value, _Effective_precision);
         _STL_INTERNAL_CHECK(_Buf_result.ec == errc{});
-        //_Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e'); //[neargye] std::finch constexpr since C++20
+        //_Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e'); //[neargye] std::find constexpr since C++20
         _Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e');
         _Exponent_first   = _Significand_last;
         _Exponent_last    = _Buf_result.ptr;
@@ -736,8 +735,8 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars(
 
     if ((_Uint_value & _Traits::_Shifted_exponent_mask) == _Traits::_Shifted_exponent_mask) {
         // inf/nan detected; write appropriate string and return
-        const char* _Str = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
-        size_t _Len      = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+        const char* _Str;
+        size_t _Len;
 
         const _Uint_type _Mantissa = _Uint_value & _Traits::_Denormal_mantissa_mask;
 

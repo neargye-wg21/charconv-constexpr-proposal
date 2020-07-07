@@ -28,8 +28,6 @@
 #include <limits>
 #include <type_traits>
 
-#include "charconv/floating_point/floating_traits.hpp"
-
 namespace third_party {
 
 template <class _FloatingType>
