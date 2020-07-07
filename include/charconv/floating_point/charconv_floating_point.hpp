@@ -73,7 +73,7 @@ constexpr from_chars_result from_chars(const char* const _First, const char* con
 }
 constexpr from_chars_result from_chars(const char* const _First, const char* const _Last, long double& _Value,
     const chars_format _Fmt = chars_format::general) noexcept /* strengthened */ {
-    double _Dbl = {}; //[neargye] default initialize for constexpr context. P1331 fix this?
+    double _Dbl;
     const from_chars_result _Result = _Floating_from_chars(_First, _Last, _Dbl, _Fmt);
 
     if (_Result.ec == errc{}) {

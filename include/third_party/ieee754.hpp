@@ -22,15 +22,62 @@
 
 #pragma once
 
+#include <cfloat>
+#include <climits>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
 
-#include "charconv/floating_point/floating_traits.hpp"
-
 namespace third_party {
 
-using nstd::_Floating_type_traits;
+template <class _FloatingType>
+struct _Floating_type_traits;
+
+template <>
+struct _Floating_type_traits<float> {
+    static constexpr int32_t _Mantissa_bits = FLT_MANT_DIG;
+    static constexpr int32_t _Exponent_bits = sizeof(float) * CHAR_BIT - FLT_MANT_DIG;
+
+    static constexpr int32_t _Maximum_binary_exponent = FLT_MAX_EXP - 1;
+    static constexpr int32_t _Minimum_binary_exponent = FLT_MIN_EXP - 1;
+
+    static constexpr int32_t _Exponent_bias = 127;
+
+    static constexpr int32_t _Sign_shift     = _Exponent_bits + _Mantissa_bits - 1;
+    static constexpr int32_t _Exponent_shift = _Mantissa_bits - 1;
+
+    using _Uint_type = uint32_t;
+
+    static constexpr uint32_t _Exponent_mask             = (1u << _Exponent_bits) - 1;
+    static constexpr uint32_t _Normal_mantissa_mask      = (1u << _Mantissa_bits) - 1;
+    static constexpr uint32_t _Denormal_mantissa_mask    = (1u << (_Mantissa_bits - 1)) - 1;
+    static constexpr uint32_t _Special_nan_mantissa_mask = 1u << (_Mantissa_bits - 2);
+    static constexpr uint32_t _Shifted_sign_mask         = 1u << _Sign_shift;
+    static constexpr uint32_t _Shifted_exponent_mask     = _Exponent_mask << _Exponent_shift;
+};
+
+template <>
+struct _Floating_type_traits<double> {
+    static constexpr int32_t _Mantissa_bits = DBL_MANT_DIG;
+    static constexpr int32_t _Exponent_bits = sizeof(double) * CHAR_BIT - DBL_MANT_DIG;
+
+    static constexpr int32_t _Maximum_binary_exponent = DBL_MAX_EXP - 1;
+    static constexpr int32_t _Minimum_binary_exponent = DBL_MIN_EXP - 1;
+
+    static constexpr int32_t _Exponent_bias = 1023;
+
+    static constexpr int32_t _Sign_shift     = _Exponent_bits + _Mantissa_bits - 1;
+    static constexpr int32_t _Exponent_shift = _Mantissa_bits - 1;
+
+    using _Uint_type = uint64_t;
+
+    static constexpr uint64_t _Exponent_mask             = (1ULL << _Exponent_bits) - 1;
+    static constexpr uint64_t _Normal_mantissa_mask      = (1ULL << _Mantissa_bits) - 1;
+    static constexpr uint64_t _Denormal_mantissa_mask    = (1ULL << (_Mantissa_bits - 1)) - 1;
+    static constexpr uint64_t _Special_nan_mantissa_mask = 1ULL << (_Mantissa_bits - 2);
+    static constexpr uint64_t _Shifted_sign_mask         = 1ULL << _Sign_shift;
+    static constexpr uint64_t _Shifted_exponent_mask     = _Exponent_mask << _Exponent_shift;
+};
 
 template <class Floating>
 class ieee754 {
@@ -60,7 +107,7 @@ class ieee754 {
     constexpr bool isfinite(floating_t f) {
         return 1 / f != 0;
     }
-    
+
 public:
     constexpr explicit ieee754(floating_t f) {
         if (f != f) {

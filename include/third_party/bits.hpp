@@ -29,7 +29,7 @@
 #endif
 
 #if !defined(__cpp_lib_bit_cast)
-#include "third_party/ieee754.hpp"
+#include "ieee754.hpp"
 #endif
 
 namespace third_party {
