@@ -26,12 +26,15 @@
 
 #include <cstring>
 
+
+#if !defined(__cpp_lib_bit_cast)
 namespace third_party {
     template <class Floating>
     std::ostream& operator<<(std::ostream& os, const ieee754<Floating>& value) {
         return os << "(sign=" << std::boolalpha << value.is_negative() << ", exp=" << value.exponent() << ", mansissa=" << value.mantissa() << ")";
     }
 }
+#endif
 
 TEST_CASE("[ieee754<float>]") {
     static_assert(third_party::bit_cast<uint32_t>(1.0f) == 0x3F80'0000);
@@ -39,6 +42,7 @@ TEST_CASE("[ieee754<float>]") {
     static_assert(third_party::bit_cast<uint32_t>(std::numeric_limits<float>::infinity()) == 0x7F80'0000);
     static_assert(third_party::bit_cast<uint32_t>(-std::numeric_limits<float>::infinity()) == 0xFF80'0000);
 
+#if !defined(__cpp_lib_bit_cast)
     uint32_t i = 0;
     while (true) {
         auto from_i = third_party::ieee754<float>(i);
@@ -63,6 +67,7 @@ TEST_CASE("[ieee754<float>]") {
         auto old_i = std::exchange(i, i + rand() % 1000);
         if (i < old_i) break;
     }
+#endif
 }
 
 TEST_CASE("[ieee754<double>]") {
@@ -71,6 +76,7 @@ TEST_CASE("[ieee754<double>]") {
     static_assert(third_party::bit_cast<uint64_t>(std::numeric_limits<double>::infinity()) == 0x7FF0'0000'0000'0000ull);
     static_assert(third_party::bit_cast<uint64_t>(-std::numeric_limits<double>::infinity()) == 0xFFF0'0000'0000'0000ull);
 
+#if !defined(__cpp_lib_bit_cast)
     uint64_t i = 0;
     while (true) {
         auto from_i = third_party::ieee754<double>(i);
@@ -95,4 +101,5 @@ TEST_CASE("[ieee754<double>]") {
         auto old_i = std::exchange(i, i + rand() % 10000 + (uint64_t(1) << 42));
         if (i < old_i) break;
     }
+#endif
 }

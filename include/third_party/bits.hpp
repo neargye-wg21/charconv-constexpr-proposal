@@ -40,7 +40,7 @@ constexpr _To bit_cast(const _From& _From_obj) noexcept {
     static_assert(std::is_trivially_copyable_v<_To>);
     static_assert(std::is_trivially_copyable_v<_From>);
 #if defined(__cpp_lib_bit_cast)
-    return __builtin_bit_cast(_To_obj, _From_obj);
+    return __builtin_bit_cast(_To, _From_obj);
 #else
     if constexpr (std::is_floating_point_v<_From> || std::is_floating_point_v<_To>) {
         return static_cast<_To>(third_party::ieee754(_From_obj));
@@ -54,7 +54,8 @@ constexpr bool bit_scan_forward(unsigned long* _Index, uint32_t _Mask) noexcept 
     if(_Mask == 0) {
         return false;
     }
-#if defined(__cpp_lib_bit_cast)
+#if defined(_MSVC)
+    #pragma intrinsic(_BitScanForward)
     (void)_BitScanForward(_Index, _Mask);
 #else
     *_Index = __builtin_ctzl(_Mask);
@@ -66,7 +67,8 @@ constexpr bool bit_scan_reverse(unsigned long* _Index, uint32_t _Mask) noexcept 
     if(_Mask == 0) {
         return false;
     }
-#if defined(__cpp_lib_bit_cast)
+#if defined(_MSVC)
+    #pragma intrinsic(_BitScanReverse)
     (void)_BitScanReverse(_Index, _Mask);
 #else
     *_Index = 31 - __builtin_clz(_Mask);
@@ -79,7 +81,8 @@ constexpr bool bit_scan_forward(unsigned long* _Index, uint64_t _Mask) noexcept 
     if(_Mask == 0) {
         return false;
     }
-#if defined(__cpp_lib_bit_cast)
+#if defined(_MSVC)
+    #pragma intrinsic(_BitScanForward64)
     (void)_BitScanForward64(_Index, _Mask);
 #else
     *_Index = __builtin_ctzll(_Mask);
@@ -91,7 +94,7 @@ constexpr bool bit_scan_reverse(unsigned long* _Index, uint64_t _Mask) noexcept 
     if(_Mask == 0) {
         return false;
     }
-#if defined(__cpp_lib_bit_cast)
+#if defined(__cpp_lib_bit_cast) && 0
     (void)_BitScanReverse64(_Index, _Mask);
 #else
     *_Index = 63 - __builtin_clzll(_Mask);
