@@ -153,7 +153,7 @@ _NODISCARD constexpr uint32_t _Bit_scan_reverse(const _Big_integer_flt& _Xval) n
 
     const uint32_t _Bx = _Xval._Myused - 1;
 
-    _STL_INTERNAL_CHECK(_Xval._Mydata[_Bx] != 0); // _Big_integer_flt should always be trimmed
+    nstd_assert(_Xval._Mydata[_Bx] != 0); // _Big_integer_flt should always be trimmed
 
     unsigned long _Index;
 
@@ -528,7 +528,7 @@ _NODISCARD constexpr uint64_t _Divide(_Big_integer_flt& _Numerator, const _Big_i
     }
 
     // If the _Denominator is zero, then uh oh. We can't divide by zero:
-    _STL_INTERNAL_CHECK(_Denominator._Myused != 0); // Division by zero
+    nstd_assert_msd(_Denominator._Myused != 0); // Division by zero
 
     uint32_t _Max_numerator_element_index         = _Numerator._Myused - 1;
     const uint32_t _Max_denominator_element_index = _Denominator._Myused - 1;

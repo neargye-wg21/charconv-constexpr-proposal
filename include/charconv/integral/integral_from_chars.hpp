@@ -39,8 +39,8 @@ namespace nstd {
 
 template <class _RawTy>
 _NODISCARD constexpr from_chars_result _Integer_from_chars(const char* const _First, const char* const _Last, _RawTy& _Raw_value, const int _Base) noexcept {
-    _Adl_verify_range(_First, _Last);
-    _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
+    nstd_verify_range(_First, _Last);
+    nstd_assert_msd(_Base >= 2 && _Base <= 36, "invalid base in from_chars()");
 
     bool _Minus_sign = false;
 

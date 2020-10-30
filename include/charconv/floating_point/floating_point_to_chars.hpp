@@ -214,7 +214,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
     // * Print the leading hexit, then mask it away.
     {
         const uint32_t _Nibble = static_cast<uint32_t>(_Adjusted_mantissa >> _Adjusted_explicit_bits);
-        _STL_INTERNAL_CHECK(_Nibble < 3);
+        nstd_assert_msd(_Nibble < 3);
         const char _Leading_hexit = static_cast<char>('0' + _Nibble);
 
         *_First++ = _Leading_hexit;
@@ -233,12 +233,12 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
         int32_t _Number_of_bits_remaining = _Adjusted_explicit_bits; // 24 for float, 52 for double
 
         for (;;) {
-            _STL_INTERNAL_CHECK(_Number_of_bits_remaining >= 4);
-            _STL_INTERNAL_CHECK(_Number_of_bits_remaining % 4 == 0);
+            nstd_assert_msd(_Number_of_bits_remaining >= 4);
+            nstd_assert_msd(_Number_of_bits_remaining % 4 == 0);
             _Number_of_bits_remaining -= 4;
 
             const uint32_t _Nibble = static_cast<uint32_t>(_Adjusted_mantissa >> _Number_of_bits_remaining);
-            _STL_INTERNAL_CHECK(_Nibble < 16);
+            nstd_assert_msd(_Nibble < 16);
             const char _Hexit = _Charconv_digits[_Nibble];
 
             *_First++ = _Hexit;
@@ -360,12 +360,12 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_shortest(
         // '0' hexits, the same condition works (as we print the final hexit and mask it away); we don't need to test
         // _Number_of_bits_remaining.
         do {
-            _STL_INTERNAL_CHECK(_Number_of_bits_remaining >= 4);
-            _STL_INTERNAL_CHECK(_Number_of_bits_remaining % 4 == 0);
+            nstd_assert_msd(_Number_of_bits_remaining >= 4);
+            nstd_assert_msd(_Number_of_bits_remaining % 4 == 0);
             _Number_of_bits_remaining -= 4;
 
             const uint32_t _Nibble = static_cast<uint32_t>(_Adjusted_mantissa >> _Number_of_bits_remaining);
-            _STL_INTERNAL_CHECK(_Nibble < 16);
+            nstd_assert_msd(_Nibble < 16);
             const char _Hexit = _Charconv_digits[_Nibble];
 
             if (_First == _Last) {
@@ -653,13 +653,13 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_general_precision(
         _Effective_precision = std::min(_Precision - (_Scientific_exponent_X + 1), _Max_fixed_precision);
         const to_chars_result _Buf_result =
             _Floating_to_chars_fixed_precision(_Buffer, std::end(_Buffer), _Value, _Effective_precision);
-        _STL_INTERNAL_CHECK(_Buf_result.ec == errc{});
+        nstd_assert_msd(_Buf_result.ec == errc{});
         _Significand_last = _Buf_result.ptr;
     } else {
         _Effective_precision = std::min(_Precision - 1, _Max_scientific_precision);
         const to_chars_result _Buf_result =
             _Floating_to_chars_scientific_precision(_Buffer, std::end(_Buffer), _Value, _Effective_precision);
-        _STL_INTERNAL_CHECK(_Buf_result.ec == errc{});
+        nstd_assert_msd(_Buf_result.ec == errc{});
         //_Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e'); //[neargye] std::find constexpr since C++20
         _Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e');
         _Exponent_first   = _Significand_last;
@@ -705,12 +705,12 @@ enum class _Floating_to_chars_overload { _Plain, _Format_only, _Format_precision
 template <_Floating_to_chars_overload _Overload, class _Floating>
 _NODISCARD constexpr to_chars_result _Floating_to_chars(
     char* _First, char* const _Last, _Floating _Value, const chars_format _Fmt, const int _Precision) noexcept {
-    _Adl_verify_range(_First, _Last);
+    nstd_verify_range(_First, _Last);
 
     if constexpr (_Overload == _Floating_to_chars_overload::_Plain) {
-        _STL_INTERNAL_CHECK(_Fmt == chars_format{}); // plain overload must pass chars_format{} internally
+        nstd_assert_msd(_Fmt == chars_format{}); // plain overload must pass chars_format{} internally
     } else {
-        _STL_ASSERT(_Fmt == chars_format::general || _Fmt == chars_format::scientific || _Fmt == chars_format::fixed
+        nstd_assert_msd(_Fmt == chars_format::general || _Fmt == chars_format::scientific || _Fmt == chars_format::fixed
                         || _Fmt == chars_format::hex,
             "invalid format in to_chars()");
     }

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <system_error>
+#include <type_traits>
 
 namespace nstd {
 
@@ -47,5 +48,33 @@ struct from_chars_result {
     const char* ptr;
     errc ec;
 };
+
+constexpr chars_format operator~(chars_format rhs) noexcept {
+  return static_cast<chars_format>(~static_cast<std::underlying_type_t<chars_format>>(rhs));
+}
+
+constexpr chars_format operator|(chars_format lhs, chars_format rhs) noexcept {
+  return static_cast<chars_format>(static_cast<std::underlying_type_t<chars_format>>(lhs) | static_cast<std::underlying_type_t<chars_format>>(rhs));
+}
+
+constexpr chars_format operator&(chars_format lhs, chars_format rhs) noexcept {
+  return static_cast<chars_format>(static_cast<std::underlying_type_t<chars_format>>(lhs) & static_cast<std::underlying_type_t<chars_format>>(rhs));
+}
+
+constexpr chars_format operator^(chars_format lhs, chars_format rhs) noexcept {
+  return static_cast<chars_format>(static_cast<std::underlying_type_t<chars_format>>(lhs) ^ static_cast<std::underlying_type_t<chars_format>>(rhs));
+}
+
+constexpr chars_format& operator|=(chars_format& lhs, chars_format rhs) noexcept {
+  return lhs = (lhs | rhs);
+}
+
+constexpr chars_format& operator&=(chars_format& lhs, chars_format rhs) noexcept {
+  return lhs = (lhs & rhs);
+}
+
+constexpr chars_format& operator^=(chars_format& lhs, chars_format rhs) noexcept {
+  return lhs = (lhs ^ rhs);
+}
 
 } // namespace nstd

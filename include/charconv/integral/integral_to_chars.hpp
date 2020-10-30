@@ -42,8 +42,8 @@ namespace nstd {
 
 template <class _RawTy>
 _NODISCARD constexpr to_chars_result _Integer_to_chars(char* _First, char* const _Last, const _RawTy _Raw_value, const int _Base) noexcept {
-    _Adl_verify_range(_First, _Last);
-    _STL_ASSERT(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
+    nstd_verify_range(_First, _Last);
+    nstd_assert_msd(_Base >= 2 && _Base <= 36, "invalid base in to_chars()");
 
     using _Unsigned = std::make_unsigned_t<_RawTy>;
 

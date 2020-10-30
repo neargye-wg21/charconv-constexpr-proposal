@@ -27,6 +27,7 @@
 // * add constexpr modifiers to '_Digit_from_char'
 // * change _Adl_verify_range to assert
 // * change _STL_ASSERT to assert
+// * change _STL_INTERNAL_CHECK to assert
 
 #pragma once
 
@@ -36,14 +37,9 @@
 #undef _NODISCARD
 #define _NODISCARD [[nodiscard]]
 
-#undef  _Adl_verify_range
-#define _Adl_verify_range(_First, _Last) assert(_First <= _Last)
-
-#undef  _STL_ASSERT
-#define _STL_ASSERT(_Cond, _Msg) assert(_Cond)
-
-#undef  _STL_INTERNAL_CHECK
-#define _STL_INTERNAL_CHECK(_Cond) assert(_Cond)
+#define nstd_verify_range(_First, _Last) assert(_First <= _Last)
+#define nstd_assert(_Cond) assert(_Cond)
+#define nstd_assert_msd(_Cond, _Msg) assert(_Cond)
 
 namespace nstd {
 
