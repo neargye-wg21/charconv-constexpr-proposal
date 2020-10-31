@@ -334,9 +334,9 @@ constexpr void _Accumulate_decimal_digits_into_big_integer_flt(
     for (const uint8_t* _It = _First_digit; _It != _Last_digit; ++_It) {
         if (_Accumulator_count == 9) {
             [[maybe_unused]] const bool _Success1 = _Multiply(_Result, 1'000'000'000); // assumes no overflow
-            nstd_assert_msd(_Success1);
+            nstd_assert(_Success1);
             [[maybe_unused]] const bool _Success2 = _Add(_Result, _Accumulator); // assumes no overflow
-            nstd_assert_msd(_Success2);
+            nstd_assert(_Success2);
 
             _Accumulator       = 0;
             _Accumulator_count = 0;
@@ -350,9 +350,9 @@ constexpr void _Accumulate_decimal_digits_into_big_integer_flt(
     if (_Accumulator_count != 0) {
         [[maybe_unused]] const bool _Success3 =
             _Multiply_by_power_of_ten(_Result, _Accumulator_count); // assumes no overflow
-        nstd_assert_msd(_Success3);
+        nstd_assert(_Success3);
         [[maybe_unused]] const bool _Success4 = _Add(_Result, _Accumulator); // assumes no overflow
-        nstd_assert_msd(_Success4);
+        nstd_assert(_Success4);
     }
 }
 
@@ -442,7 +442,7 @@ _NODISCARD constexpr errc _Convert_decimal_string_to_floating_type(
     if (_Fractional_shift > 0) {
         [[maybe_unused]] const bool _Shift_success1 =
             _Shift_left(_Fractional_numerator, _Fractional_shift); // assumes no overflow
-        nstd_assert_msd(_Shift_success1);
+        nstd_assert(_Shift_success1);
     }
 
     const uint32_t _Required_fractional_bits_of_precision = _Required_bits_of_precision - _Integer_bits_of_precision;
@@ -474,7 +474,7 @@ _NODISCARD constexpr errc _Convert_decimal_string_to_floating_type(
 
     [[maybe_unused]] const bool _Shift_success2 =
         _Shift_left(_Fractional_numerator, _Remaining_bits_of_precision_required); // assumes no overflow
-    nstd_assert_msd(_Shift_success2);
+    nstd_assert(_Shift_success2);
 
     uint64_t _Fractional_mantissa = _Divide(_Fractional_numerator, _Fractional_denominator);
 
@@ -688,7 +688,7 @@ _NODISCARD constexpr from_chars_result _Ordinary_floating_from_chars(const char*
     // We can return now. Note that we defer this check until after we scan the exponent, so that we can correctly
     // update _Next to point past the end of the exponent.
     if (_Mantissa_it == _Mantissa_first) {
-        nstd_assert_msd(_Has_zero_tail);
+        nstd_assert(_Has_zero_tail);
         _Assemble_floating_point_zero(_Fp_string._Myis_negative, _Value);
         return {_Next, errc{}};
     }
@@ -839,7 +839,7 @@ _NODISCARD constexpr from_chars_result _Floating_from_chars(
     const char* const _First, const char* const _Last, _Floating& _Value, const chars_format _Fmt) noexcept {
     nstd_verify_range(_First, _Last);
 
-    nstd_assert_msd(_Fmt == chars_format::general || _Fmt == chars_format::scientific || _Fmt == chars_format::fixed
+    nstd_assert_msg(_Fmt == chars_format::general || _Fmt == chars_format::scientific || _Fmt == chars_format::fixed
                     || _Fmt == chars_format::hex,
         "invalid format in from_chars()");
 

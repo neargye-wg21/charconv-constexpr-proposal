@@ -82,7 +82,7 @@ _NODISCARD constexpr uint32_t __decimalLength9(const uint32_t __v) {
   // Function precondition: __v is not a 10-digit number.
   // (f2s: 9 digits are sufficient for round-tripping.)
   // (d2fixed: We print 9-digit blocks.)
-  nstd_assert_msd(__v < 1000000000);
+  nstd_assert(__v < 1000000000);
   if (__v >= 100000000) { return 9; }
   if (__v >= 10000000) { return 8; }
   if (__v >= 1000000) { return 7; }
@@ -977,7 +977,7 @@ inline constexpr uint64_t __FLOAT_POW5_SPLIT[47] = {
 _NODISCARD constexpr uint32_t __pow5Factor(uint32_t __value) {
   uint32_t __count = 0;
   for (;;) {
-    nstd_assert_msd(__value != 0);
+    nstd_assert(__value != 0);
     const uint32_t __q = __value / 5;
     const uint32_t __r = __value % 5;
     if (__r != 0) {
@@ -996,8 +996,8 @@ _NODISCARD constexpr bool __multipleOfPowerOf5(const uint32_t __value, const uin
 
 // Returns true if __value is divisible by 2^__p.
 _NODISCARD constexpr bool __multipleOfPowerOf2(const uint32_t __value, const uint32_t __p) {
-  nstd_assert_msd(__value != 0);
-  nstd_assert_msd(__p < 32);
+  nstd_assert(__value != 0);
+  nstd_assert(__p < 32);
   // return __builtin_ctz(__value) >= __p;
   return (__value & ((1u << __p) - 1)) == 0;
 }

@@ -39,7 +39,7 @@
 
 #define nstd_verify_range(_First, _Last) assert(_First <= _Last)
 #define nstd_assert(_Cond) assert(_Cond)
-#define nstd_assert_msd(_Cond, _Msg) assert(_Cond)
+#define nstd_assert_msg(_Cond, _Msg) assert(_Cond)
 
 namespace nstd {
 

@@ -528,7 +528,7 @@ _NODISCARD constexpr uint64_t _Divide(_Big_integer_flt& _Numerator, const _Big_i
     }
 
     // If the _Denominator is zero, then uh oh. We can't divide by zero:
-    nstd_assert_msd(_Denominator._Myused != 0); // Division by zero
+    nstd_assert(_Denominator._Myused != 0); // Division by zero
 
     uint32_t _Max_numerator_element_index         = _Numerator._Myused - 1;
     const uint32_t _Max_denominator_element_index = _Denominator._Myused - 1;
