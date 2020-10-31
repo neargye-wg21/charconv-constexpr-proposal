@@ -1086,9 +1086,9 @@ int main(int argc, char** argv) {
 
     all_integer_tests();
 
-    all_floating_tests(mt64);
+    //all_floating_tests(mt64);
 
-    test_right_shift_64_bits_with_rounding();
+    //test_right_shift_64_bits_with_rounding();
 
     const auto finish  = chrono::steady_clock::now();
     const long long ms = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
