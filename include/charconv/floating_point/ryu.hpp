@@ -68,9 +68,7 @@
 // * change 'static constexpr' to 'constexpr' at _Max_shifted_mantissa, _Adjustment
 // * change '_BitScanForward' to third_party::bit_scan_forward
 
-// [neargye] TODO cros-compiler
-#undef _M_X64 // [neargye] intrinsics unavailable _umul128() and __shiftright128()
-#define __forceinline inline
+#undef nstd_intrinsics // [neargye] TODO cros-compiler
 
 namespace nstd {
 
@@ -144,7 +142,7 @@ inline constexpr int __DOUBLE_POW5_BITCOUNT = 121;
 
 // vvvvvvvvvv DERIVED FROM d2s_intrinsics.h vvvvvvvvvv
 
-#ifdef _M_X64
+#ifdef nstd_intrinsics
 
 _NODISCARD inline uint64_t __ryu_umul128(const uint64_t __a, const uint64_t __b, uint64_t* const __productHi) {
   return _umul128(__a, __b, __productHi);
@@ -330,7 +328,7 @@ _NODISCARD constexpr bool __multipleOfPowerOf2(const uint64_t __value, const uin
 
 inline constexpr int __POW10_ADDITIONAL_BITS = 120;
 
-#ifdef _M_X64
+#ifdef nstd_intrinsics
 // Returns the low 64 bits of the high 128 bits of the 256-bit product of a and b.
 _NODISCARD inline uint64_t __umul256_hi128_lo64(
   const uint64_t __aHi, const uint64_t __aLo, const uint64_t __bHi, const uint64_t __bLo) {
@@ -379,7 +377,7 @@ _NODISCARD constexpr uint32_t __mulShift_mod1e9(const uint64_t __m, const uint64
   const uint64_t __s1high = __high2 + __c2;         // 192
   nstd_assert(__j >= 128);
   nstd_assert(__j <= 180);
-#ifdef _M_X64
+#ifdef nstd_intrinsics
   const uint32_t __dist = static_cast<uint32_t>(__j - 128); // __dist: [0, 52]
   const uint64_t __shiftedhigh = __s1high >> __dist;
   const uint64_t __shiftedlow = __ryu_shiftright128(__s1low, __s1high, __dist);
@@ -1644,7 +1642,7 @@ _NODISCARD constexpr to_chars_result __f2s_buffered_n(char* const _First, char* 
 //    c. Split only the first factor into 31-bit pieces, which also guarantees
 //       no internal overflow, but requires extra work since the intermediate
 //       results are not perfectly aligned.
-#ifdef _M_X64
+#ifdef nstd_intrinsics
 
 _NODISCARD inline uint64_t __mulShift(const uint64_t __m, const uint64_t* const __mul, const int32_t __j) {
   // __m is maximum 55 bits
