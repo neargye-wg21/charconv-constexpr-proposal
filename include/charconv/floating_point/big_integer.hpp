@@ -24,6 +24,8 @@
 // * change '_CSTD memmove' to 'third_party::trivial_move'
 // * change '_CSTD memset' to 'third_party::trivial_fill'
 // * change '_Min_value' to 'std::min'
+// * change '_BitScanReverse' to third_party::bit_scan_reverse
+// * change 'static constexpr' to 'constexpr' at _Small_powers_of_ten, _Unpack_index _Large_power_indices, _Large_power_data
 
 #pragma once
 
@@ -39,9 +41,9 @@
 namespace nstd {
 
 struct _Big_integer_flt {
-    constexpr _Big_integer_flt() noexcept : _Myused(0), _Mydata{} {}
+    constexpr _Big_integer_flt() noexcept : _Myused(0) {}
 
-    constexpr _Big_integer_flt(const _Big_integer_flt& _Other) noexcept : _Myused(_Other._Myused), _Mydata{} {
+    constexpr _Big_integer_flt(const _Big_integer_flt& _Other) noexcept : _Myused(_Other._Myused) {
         //[neargye] constexpr copy uint32_t. P1944 fix this?
         third_party::trivial_copy(_Mydata, _Other._Mydata, _Other._Myused * sizeof(uint32_t));
     }
@@ -125,7 +127,7 @@ _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint32_t _Value) noexcept 
 _NODISCARD constexpr uint32_t _Bit_scan_reverse(const uint64_t _Value) noexcept {
     unsigned long _Index;
 
-#ifdef _WIN64
+#if defined(_WIN64) || defined(__x86_64__)
     if (third_party::bit_scan_reverse(&_Index, _Value)) {
         return _Index + 1;
     }
@@ -257,9 +259,9 @@ _NODISCARD constexpr bool _Add(_Big_integer_flt& _Xval, const uint32_t _Value) n
     return true;
 }
 
-_NODISCARD constexpr uint32_t _Add_carry(uint32_t& _U1, const uint32_t _U2, const uint32_t _U_carry) noexcept {
-    const uint64_t _Uu = static_cast<uint64_t>(_U1) + _U2 + _U_carry;
-    _U1                = static_cast<uint32_t>(_Uu);
+_NODISCARD constexpr uint32_t _Add_carry(uint32_t& _Ux1, const uint32_t _Ux2, const uint32_t _U_carry) noexcept {
+    const uint64_t _Uu = static_cast<uint64_t>(_Ux1) + _Ux2 + _U_carry;
+    _Ux1               = static_cast<uint32_t>(_Uu);
     return static_cast<uint32_t>(_Uu >> 32);
 }
 
@@ -509,7 +511,6 @@ _NODISCARD constexpr bool _Multiply_by_power_of_ten(_Big_integer_flt& _Xval, con
 
     return _Multiply(_Xval, _Small_powers_of_ten[_Small_power - 1]); // when overflow occurs, resets to zero
 }
-
 
 // Computes the number of zeroes higher than the most significant set bit in _Ux
 _NODISCARD constexpr uint32_t _Count_sequential_high_zeroes(const uint32_t _Ux) noexcept {

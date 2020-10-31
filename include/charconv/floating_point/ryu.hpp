@@ -198,7 +198,7 @@ _NODISCARD constexpr uint64_t __ryu_umul128(const uint64_t __a, const uint64_t _
 _NODISCARD constexpr uint64_t __ryu_shiftright128(const uint64_t __lo, const uint64_t __hi, const uint32_t __dist) {
   // We don't need to handle the case __dist >= 64 here (see above).
   nstd_assert(__dist < 64);
-#ifdef _WIN64
+#if defined(_WIN64) || defined(__x86_64__)
   nstd_assert(__dist > 0);
   return (__hi << (64 - __dist)) | (__lo >> __dist);
 #else // ^^^ 64-bit ^^^ / vvv 32-bit vvv
@@ -210,7 +210,7 @@ _NODISCARD constexpr uint64_t __ryu_shiftright128(const uint64_t __lo, const uin
 
 #endif // ^^^ intrinsics unavailable ^^^
 
-#ifndef _WIN64
+#if !(defined(_WIN64) || defined(__x86_64__))
 
 // Returns the high 64 bits of the 128-bit product of __a and __b.
 _NODISCARD constexpr uint64_t __umulh(const uint64_t __a, const uint64_t __b) {
@@ -1013,7 +1013,7 @@ _NODISCARD constexpr uint32_t __mulShift(const uint32_t __m, const uint64_t __fa
   const uint64_t __bits0 = static_cast<uint64_t>(__m) * __factorLo;
   const uint64_t __bits1 = static_cast<uint64_t>(__m) * __factorHi;
 
-#ifndef _WIN64
+#if !(defined(_WIN64) || defined(__x86_64__))
   // On 32-bit platforms we can avoid a 64-bit shift-right since we only
   // need the upper 32 bits of the result and the shift value is > 32.
   const uint32_t __bits0Hi = static_cast<uint32_t>(__bits0 >> 32);
@@ -2032,7 +2032,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
           36893488u, 7378697u, 1475739u, 295147u, 59029u, 11805u, 2361u, 472u, 94u, 18u, 3u };
 
         unsigned long _Trailing_zero_bits;
-#ifdef _WIN64
+#if defined(_WIN64) || defined(__x86_64__)
         (void) third_party::bit_scan_forward(&_Trailing_zero_bits, __v.__mantissa); // __v.__mantissa is guaranteed nonzero
 #else // ^^^ 64-bit ^^^ / vvv 32-bit vvv
         const uint32_t _Low_mantissa = static_cast<uint32_t>(__v.__mantissa);
