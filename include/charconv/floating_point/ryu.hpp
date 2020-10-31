@@ -99,24 +99,24 @@ _NODISCARD constexpr int32_t __pow5bits(const int32_t __e) {
   // This approximation works up to the point that the multiplication overflows at __e = 3529.
   // If the multiplication were done in 64 bits, it would fail at 5^4004 which is just greater
   // than 2^9297.
-  nstd_assert_msg(__e >= 0);
-  nstd_assert_msg(__e <= 3528);
+  nstd_assert(__e >= 0);
+  nstd_assert(__e <= 3528);
   return static_cast<int32_t>(((static_cast<uint32_t>(__e) * 1217359) >> 19) + 1);
 }
 
 // Returns floor(log_10(2^__e)).
 _NODISCARD constexpr uint32_t __log10Pow2(const int32_t __e) {
   // The first value this approximation fails for is 2^1651 which is just greater than 10^297.
-  nstd_assert_msg(__e >= 0);
-  nstd_assert_msg(__e <= 1650);
+  nstd_assert(__e >= 0);
+  nstd_assert(__e <= 1650);
   return (static_cast<uint32_t>(__e) * 78913) >> 18;
 }
 
 // Returns floor(log_10(5^__e)).
 _NODISCARD constexpr uint32_t __log10Pow5(const int32_t __e) {
   // The first value this approximation fails for is 5^2621 which is just greater than 10^1832.
-  nstd_assert_msg(__e >= 0);
-  nstd_assert_msg(__e <= 2620);
+  nstd_assert(__e >= 0);
+  nstd_assert(__e <= 2620);
   return (static_cast<uint32_t>(__e) * 732923) >> 20;
 }
 
@@ -157,7 +157,7 @@ _NODISCARD inline uint64_t __ryu_shiftright128(const uint64_t __lo, const uint64
   // (The shift value is in the range [49, 58].)
   // Check this here in case a future change requires larger shift
   // values. In this case this function needs to be adjusted.
-  nstd_assert_msg(__dist < 64);
+  nstd_assert(__dist < 64);
   return __shiftright128(__lo, __hi, static_cast<unsigned char>(__dist));
 }
 
@@ -196,13 +196,13 @@ _NODISCARD constexpr uint64_t __ryu_umul128(const uint64_t __a, const uint64_t _
 
 _NODISCARD constexpr uint64_t __ryu_shiftright128(const uint64_t __lo, const uint64_t __hi, const uint32_t __dist) {
   // We don't need to handle the case __dist >= 64 here (see above).
-  nstd_assert_msg(__dist < 64);
+  nstd_assert(__dist < 64);
 #ifdef _WIN64
-  nstd_assert_msg(__dist > 0);
+  nstd_assert(__dist > 0);
   return (__hi << (64 - __dist)) | (__lo >> __dist);
 #else // ^^^ 64-bit ^^^ / vvv 32-bit vvv
   // Avoid a 64-bit shift by taking advantage of the range of shift values.
-  nstd_assert_msg(__dist >= 32);
+  nstd_assert(__dist >= 32);
   return (__hi << (64 - __dist)) | (static_cast<uint32_t>(__lo >> 32) >> (__dist - 32));
 #endif // ^^^ 32-bit ^^^
 }
@@ -297,7 +297,7 @@ _NODISCARD constexpr uint32_t __mod1e9(const uint64_t __x) {
 _NODISCARD constexpr uint32_t __pow5Factor(uint64_t __value) {
   uint32_t __count = 0;
   for (;;) {
-    nstd_assert_msg(__value != 0);
+    nstd_assert(__value != 0);
     const uint64_t __q = __div5(__value);
     const uint32_t __r = static_cast<uint32_t>(__value) - 5 * static_cast<uint32_t>(__q);
     if (__r != 0) {
@@ -317,8 +317,8 @@ _NODISCARD constexpr bool __multipleOfPowerOf5(const uint64_t __value, const uin
 
 // Returns true if __value is divisible by 2^__p.
 _NODISCARD constexpr bool __multipleOfPowerOf2(const uint64_t __value, const uint32_t __p) {
-  nstd_assert_msg(__value != 0);
-  nstd_assert_msg(__p < 64);
+  nstd_assert(__value != 0);
+  nstd_assert(__p < 64);
   // return __builtin_ctzll(__value) >= __p;
   return (__value & ((1ull << __p) - 1)) == 0;
 }
@@ -376,8 +376,8 @@ _NODISCARD constexpr uint32_t __mulShift_mod1e9(const uint64_t __m, const uint64
   const uint64_t __s1low = __low2 + __high1 + __c1; // 128
   const uint32_t __c2 = __s1low < __low2; // __high1 + __c1 can't overflow, so compare against __low2
   const uint64_t __s1high = __high2 + __c2;         // 192
-  nstd_assert_msg(__j >= 128);
-  nstd_assert_msg(__j <= 180);
+  nstd_assert(__j >= 128);
+  nstd_assert(__j <= 180);
 #ifdef _M_X64
   const uint32_t __dist = static_cast<uint32_t>(__j - 128); // __dist: [0, 52]
   const uint64_t __shiftedhigh = __s1high >> __dist;
@@ -1003,7 +1003,7 @@ _NODISCARD constexpr bool __multipleOfPowerOf2(const uint32_t __value, const uin
 }
 
 _NODISCARD constexpr uint32_t __mulShift(const uint32_t __m, const uint64_t __factor, const int32_t __shift) {
-  nstd_assert_msg(__shift > 32);
+  nstd_assert(__shift > 32);
 
   // The casts here help MSVC to avoid calls to the __allmul library
   // function.
@@ -1025,7 +1025,7 @@ _NODISCARD constexpr uint32_t __mulShift(const uint32_t __m, const uint64_t __fa
 #else // ^^^ 32-bit ^^^ / vvv 64-bit vvv
   const uint64_t __sum = (__bits0 >> 32) + __bits1;
   const uint64_t __shiftedSum = __sum >> (__shift - 32);
-  nstd_assert_msg(__shiftedSum <= UINT32_MAX);
+  nstd_assert(__shiftedSum <= UINT32_MAX);
   return static_cast<uint32_t>(__shiftedSum);
 #endif // ^^^ 64-bit ^^^
 }
