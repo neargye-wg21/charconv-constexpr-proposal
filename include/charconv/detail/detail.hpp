@@ -25,6 +25,7 @@
 
 // Changes:
 // * add constexpr modifiers to '_Digit_from_char'
+// * change 'static constexpr' to 'constexpr' at _Digit_from_byte
 // * change _Adl_verify_range to assert
 // * change _STL_ASSERT to assert
 // * change _STL_INTERNAL_CHECK to assert

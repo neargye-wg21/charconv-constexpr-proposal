@@ -68,11 +68,11 @@ inline constexpr void trivial_move(_RawTy* dest, const _RawTy* src, std::size_t 
             const _RawTy* s = src + count;
             d += count;
             for (; count; --count) {
-            *(--d) = *(--s);
+                *(--d) = *(--s);
             }
         } else if (dest < src) {
             for (; count; --count) {
-            *(d++) = *(src++);
+                *(d++) = *(src++);
             }
         }
     }

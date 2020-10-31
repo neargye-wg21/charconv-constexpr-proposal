@@ -33,10 +33,10 @@ namespace nstd {
 using errc = std::errc;
 
 enum class chars_format {
-    scientific = 1,
-    fixed = 2,
-    hex = 4,
-    general = fixed | scientific
+    scientific = 0b001,
+    fixed      = 0b010,
+    hex        = 0b100,
+    general    = fixed | scientific
 };
 
 struct to_chars_result {
