@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// * change '_Bit_cast' to 'third_party::bit_cast'
+
 #include "test.hpp"
 
 #include <algorithm>
@@ -47,6 +49,7 @@
 #include "floating_point_test_cases.hpp"
 
 using namespace std;
+using namespace nstd;
 
 void initialize_randomness(mt19937_64& mt64, const int argc, char** const argv) {
     constexpr size_t n = mt19937_64::state_size;
@@ -424,7 +427,7 @@ void test_from_chars(const string_view input, const BaseOrFmt base_or_fmt, const
             if (mode == TestFromCharsMode::Normal) {
                 using Uint = conditional_t<is_same_v<T, float>, uint32_t, uint64_t>;
                 assert(opt_correct.has_value());
-                assert(_Bit_cast<Uint>(dest) == _Bit_cast<Uint>(opt_correct.value()));
+                assert(third_party::bit_cast<Uint>(dest) == third_party::bit_cast<Uint>(opt_correct.value()));
             } else {
                 assert(mode == TestFromCharsMode::SignalingNaN);
                 assert(!opt_correct.has_value());
@@ -625,7 +628,7 @@ void test_floating_prefix(const conditional_t<IsDouble, uint64_t, uint32_t> pref
 
     for (uint32_t frac = 0; frac < Fractions; ++frac) {
         const UIntType bits      = prefix + frac;
-        const FloatingType input = _Bit_cast<FloatingType>(bits);
+        const FloatingType input = third_party::bit_cast<FloatingType>(bits);
 
         {
             const auto to_result = to_chars(buffer, end(buffer), input, chars_format::scientific);
@@ -636,17 +639,17 @@ void test_floating_prefix(const conditional_t<IsDouble, uint64_t, uint32_t> pref
 
             assert_message_bits(from_result.ptr == last, "from_result.ptr", bits);
             assert_message_bits(from_result.ec == errc{}, "from_result.ec", bits);
-            assert_message_bits(_Bit_cast<UIntType>(val) == bits, "round-trip", bits);
+            assert_message_bits(third_party::bit_cast<UIntType>(val) == bits, "round-trip", bits);
         }
 
         {
-            // Also verify that to_chars() and sprintf_s() emit the same output for integers in fixed notation.
+            // Also verify that to_chars() and sprintf() emit the same output for integers in fixed notation.
             const auto fixed_result = to_chars(fixed_buffer, end(fixed_buffer), input, chars_format::fixed);
             assert_message_bits(fixed_result.ec == errc{}, "fixed_result.ec", bits);
             const string_view fixed_sv(fixed_buffer, static_cast<size_t>(fixed_result.ptr - fixed_buffer));
 
             if (find(fixed_sv.begin(), fixed_sv.end(), '.') == fixed_sv.end()) {
-                const int stdio_ret = sprintf_s(stdio_buffer, size(stdio_buffer), "%.0f", input);
+                const int stdio_ret = snprintf(stdio_buffer, size(stdio_buffer), "%.0f", input);
                 assert_message_bits(stdio_ret != -1, "stdio_ret", bits);
                 const string_view stdio_sv(stdio_buffer);
                 assert_message_bits(fixed_sv == stdio_sv, "fixed_sv", bits);
@@ -673,7 +676,7 @@ void test_floating_hex_prefix(const conditional_t<IsDouble, uint64_t, uint32_t> 
 
     for (uint32_t frac = 0; frac < Fractions; ++frac) {
         const UIntType bits      = prefix + frac;
-        const FloatingType input = _Bit_cast<FloatingType>(bits);
+        const FloatingType input = third_party::bit_cast<FloatingType>(bits);
 
         const auto to_result = to_chars(buffer, end(buffer), input, chars_format::hex);
         assert_message_bits(to_result.ec == errc{}, "(hex) to_result.ec", bits);
@@ -683,7 +686,7 @@ void test_floating_hex_prefix(const conditional_t<IsDouble, uint64_t, uint32_t> 
 
         assert_message_bits(from_result.ptr == last, "(hex) from_result.ptr", bits);
         assert_message_bits(from_result.ec == errc{}, "(hex) from_result.ec", bits);
-        assert_message_bits(_Bit_cast<UIntType>(val) == bits, "(hex) round-trip", bits);
+        assert_message_bits(third_party::bit_cast<UIntType>(val) == bits, "(hex) round-trip", bits);
     }
 }
 
@@ -717,14 +720,14 @@ void test_floating_precision_prefix(const conditional_t<IsDouble, uint64_t, uint
 
     for (uint32_t frac = 0; frac < Fractions; ++frac) {
         const UIntType bits      = prefix + frac;
-        const FloatingType input = _Bit_cast<FloatingType>(bits);
+        const FloatingType input = third_party::bit_cast<FloatingType>(bits);
 
         auto result = to_chars(charconv_buffer, end(charconv_buffer), input, chars_format::fixed, precision);
         assert_message_bits(result.ec == errc{}, "to_chars fixed precision", bits);
         string_view charconv_sv(charconv_buffer, static_cast<size_t>(result.ptr - charconv_buffer));
 
-        int stdio_ret = sprintf_s(stdio_buffer, size(stdio_buffer), "%.*f", precision, input);
-        assert_message_bits(stdio_ret != -1, "sprintf_s fixed precision", bits);
+        int stdio_ret = snprintf(stdio_buffer, size(stdio_buffer), "%.*f", precision, input);
+        assert_message_bits(stdio_ret != -1, "sprintf fixed precision", bits);
         string_view stdio_sv(stdio_buffer);
 
         assert_message_bits(charconv_sv == stdio_sv, "fixed precision output", bits);
@@ -734,8 +737,8 @@ void test_floating_precision_prefix(const conditional_t<IsDouble, uint64_t, uint
         assert_message_bits(result.ec == errc{}, "to_chars scientific precision", bits);
         charconv_sv = string_view(charconv_buffer, static_cast<size_t>(result.ptr - charconv_buffer));
 
-        stdio_ret = sprintf_s(stdio_buffer, size(stdio_buffer), "%.*e", precision, input);
-        assert_message_bits(stdio_ret != -1, "sprintf_s scientific precision", bits);
+        stdio_ret = snprintf(stdio_buffer, size(stdio_buffer), "%.*e", precision, input);
+        assert_message_bits(stdio_ret != -1, "sprintf scientific precision", bits);
         stdio_sv = stdio_buffer;
 
         assert_message_bits(charconv_sv == stdio_sv, "scientific precision output", bits);
@@ -745,8 +748,8 @@ void test_floating_precision_prefix(const conditional_t<IsDouble, uint64_t, uint
         assert_message_bits(result.ec == errc{}, "to_chars general precision", bits);
         charconv_sv = string_view(general_buffer, static_cast<size_t>(result.ptr - general_buffer));
 
-        stdio_ret = sprintf_s(general_stdio_buffer, size(general_stdio_buffer), "%.5000g", input);
-        assert_message_bits(stdio_ret != -1, "sprintf_s general precision", bits);
+        stdio_ret = snprintf(general_stdio_buffer, size(general_stdio_buffer), "%.5000g", input);
+        assert_message_bits(stdio_ret != -1, "sprintf general precision", bits);
         stdio_sv = general_stdio_buffer;
 
         assert_message_bits(charconv_sv == stdio_sv, "general precision output", bits);
@@ -989,11 +992,11 @@ void all_floating_tests(mt19937_64& mt64) {
 
     // See floating_point_test_cases.hpp.
     for (const auto& p : floating_point_test_cases_float) {
-        test_from_chars<float>(p.first, chars_format::general, strlen(p.first), errc{}, _Bit_cast<float>(p.second));
+        test_from_chars<float>(p.first, chars_format::general, strlen(p.first), errc{}, third_party::bit_cast<float>(p.second));
     }
 
     for (const auto& p : floating_point_test_cases_double) {
-        test_from_chars<double>(p.first, chars_format::general, strlen(p.first), errc{}, _Bit_cast<double>(p.second));
+        test_from_chars<double>(p.first, chars_format::general, strlen(p.first), errc{}, third_party::bit_cast<double>(p.second));
     }
 
     // See float_to_chars_test_cases.hpp in this directory.
