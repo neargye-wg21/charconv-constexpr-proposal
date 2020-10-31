@@ -275,7 +275,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_precision(
     *_First++ = _Sign_character;
 
     // We've already printed '-' if necessary, so uint32_t _Absolute_exponent avoids testing that again.
-    return nstd::_Integer_to_chars(_First, _Last, _Absolute_exponent, 10);
+    return _Integer_to_chars(_First, _Last, _Absolute_exponent, 10);
 }
 
 template <class _Floating>
@@ -402,7 +402,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_hex_shortest(
     }
 
     // We've already printed '-' if necessary, so static_cast<uint32_t> avoids testing that again.
-    return nstd::_Integer_to_chars(_First, _Last, static_cast<uint32_t>(_Unbiased_exponent), 10);
+    return _Integer_to_chars(_First, _Last, static_cast<uint32_t>(_Unbiased_exponent), 10);
 }
 
 template <class _Floating>
@@ -645,7 +645,7 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_general_precision(
     const char* _Significand_last        = nullptr;
     const char* _Exponent_first          = nullptr; // e.g. "e-05"
     const char* _Exponent_last           = nullptr;
-    int _Effective_precision             = {}; // number of digits printed after the decimal point, before trimming
+    int _Effective_precision; // number of digits printed after the decimal point, before trimming
 
     // Write into the local buffer.
     // Clamping _Effective_precision allows _Buffer to be as small as possible, and increases efficiency.
@@ -660,7 +660,6 @@ _NODISCARD constexpr to_chars_result _Floating_to_chars_general_precision(
         const to_chars_result _Buf_result =
             _Floating_to_chars_scientific_precision(_Buffer, std::end(_Buffer), _Value, _Effective_precision);
         nstd_assert(_Buf_result.ec == errc{});
-        //_Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e'); //[neargye] std::find constexpr since C++20
         _Significand_last = std::find(_Buffer, _Buf_result.ptr, 'e');
         _Exponent_first   = _Significand_last;
         _Exponent_last    = _Buf_result.ptr;
