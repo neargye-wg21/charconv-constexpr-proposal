@@ -23,7 +23,6 @@
 // * change '_CSTD memcpy' to 'third_party::trivial_copy'
 // * change '_CSTD memmove' to 'third_party::trivial_move'
 // * change '_CSTD memset' to 'third_party::trivial_fill'
-// * change '_Min_value' to 'std::min'
 // * change '_BitScanReverse' to third_party::bit_scan_reverse
 // * change 'static constexpr' to 'constexpr' at _Small_powers_of_ten, _Unpack_index _Large_power_indices, _Large_power_data
 

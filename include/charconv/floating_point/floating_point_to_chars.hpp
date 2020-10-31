@@ -24,7 +24,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // * add constexpr modifiers to '_Floating_to_chars'
-// * change '_Min_value' to 'std::min'
 // * change '_Bit_cast' to 'third_party::bit_cast'
 // * change '_CSTD memcpy' to 'third_party::trivial_copy'
 
