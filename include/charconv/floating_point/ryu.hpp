@@ -66,6 +66,7 @@
 // * change '_CSTD memcpy' to 'third_party::trivial_copy'
 // * change '_CSTD memset' to 'third_party::trivial_fill'
 // * change 'static constexpr' to 'constexpr' at _Max_shifted_mantissa, _Adjustment
+// * change '_BitScanForward' to third_party::bit_scan_forward
 
 // [neargye] TODO cros-compiler
 #undef _M_X64 // [neargye] intrinsics unavailable _umul128() and __shiftright128()
@@ -164,7 +165,7 @@ _NODISCARD inline uint64_t __ryu_shiftright128(const uint64_t __lo, const uint64
 #else // ^^^ intrinsics available ^^^ / vvv intrinsics unavailable vvv
 
 _NODISCARD constexpr uint64_t __ryu_umul128(const uint64_t __a, const uint64_t __b, uint64_t* const __productHi) {
-  // TRANSITION, VSO#634761
+  // TRANSITION, VSO-634761
   // The casts here help MSVC to avoid calls to the __allmul library function.
   const uint32_t __aLo = static_cast<uint32_t>(__a);
   const uint32_t __aHi = static_cast<uint32_t>(__a >> 32);
@@ -224,7 +225,7 @@ _NODISCARD constexpr uint64_t __umulh(const uint64_t __a, const uint64_t __b) {
 // On 32-bit platforms, compilers typically generate calls to library
 // functions for 64-bit divisions, even if the divisor is a constant.
 //
-// TRANSITION, LLVM#37932
+// TRANSITION, LLVM-37932
 //
 // The functions here perform division-by-constant using multiplications
 // in the same way as 64-bit compilers would do.
@@ -363,11 +364,11 @@ _NODISCARD inline uint32_t __uint128_mod1e9(const uint64_t __vHi, const uint64_t
 #endif // ^^^ intrinsics available ^^^
 
 _NODISCARD constexpr uint32_t __mulShift_mod1e9(const uint64_t __m, const uint64_t* const __mul, const int32_t __j) {
-  uint64_t __high0;                                          // 64
+  uint64_t __high0;                                               // 64
   const uint64_t __low0 = __ryu_umul128(__m, __mul[0], &__high0); // 0
-  uint64_t __high1;                                          // 128
+  uint64_t __high1;                                               // 128
   const uint64_t __low1 = __ryu_umul128(__m, __mul[1], &__high1); // 64
-  uint64_t __high2;                                          // 192
+  uint64_t __high2;                                               // 192
   const uint64_t __low2 = __ryu_umul128(__m, __mul[2], &__high2); // 128
   const uint64_t __s0low = __low0;                  // 0
   (void) __s0low; // unused
@@ -400,7 +401,7 @@ _NODISCARD constexpr uint32_t __mulShift_mod1e9(const uint64_t __m, const uint64
 constexpr void __append_n_digits(const uint32_t __olength, uint32_t __digits, char* const __result) {
   uint32_t __i = 0;
   while (__digits >= 10000) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
     const uint32_t __c = __digits - 10000 * (__digits / 10000);
 #else
     const uint32_t __c = __digits % 10000;
@@ -429,7 +430,7 @@ constexpr void __append_n_digits(const uint32_t __olength, uint32_t __digits, ch
 constexpr void __append_d_digits(const uint32_t __olength, uint32_t __digits, char* const __result) {
   uint32_t __i = 0;
   while (__digits >= 10000) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
     const uint32_t __c = __digits - 10000 * (__digits / 10000);
 #else
     const uint32_t __c = __digits % 10000;
@@ -478,7 +479,7 @@ constexpr void __append_nine_digits(uint32_t __digits, char* const __result) {
   }
 
   for (uint32_t __i = 0; __i < 5; __i += 4) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
     const uint32_t __c = __digits - 10000 * (__digits / 10000);
 #else
     const uint32_t __c = __digits % 10000;
@@ -1122,7 +1123,7 @@ _NODISCARD constexpr __floating_decimal_32 __f2d(const uint32_t __ieeeMantissa, 
         // __mp = __mv + 2, so it always has at least one trailing 0 bit.
         --__vp;
       }
-    } else if (__q < 31) { // TODO(ulfjack): Use a tighter bound here.
+    } else if (__q < 31) { // TRANSITION(ulfjack): Use a tighter bound here.
       __vrIsTrailingZeros = __multipleOfPowerOf2(__mv, __q - 1);
     }
   }
@@ -1133,7 +1134,7 @@ _NODISCARD constexpr __floating_decimal_32 __f2d(const uint32_t __ieeeMantissa, 
   if (__vmIsTrailingZeros || __vrIsTrailingZeros) {
     // General case, which happens rarely (~4.0%).
     while (__vp / 10 > __vm / 10) {
-#ifdef __clang__ // TRANSITION, LLVM#23106
+#ifdef __clang__ // TRANSITION, LLVM-23106
       __vmIsTrailingZeros &= __vm - (__vm / 10) * 10 == 0;
 #else
       __vmIsTrailingZeros &= __vm % 10 == 0;
@@ -1177,7 +1178,7 @@ _NODISCARD constexpr __floating_decimal_32 __f2d(const uint32_t __ieeeMantissa, 
   }
   const int32_t __exp = __e10 + __removed;
 
-  __floating_decimal_32 __fd = {};
+  __floating_decimal_32 __fd;
   __fd.__exponent = __exp;
   __fd.__mantissa = __output;
   return __fd;
@@ -1200,8 +1201,8 @@ _NODISCARD constexpr to_chars_result _Large_integer_to_chars(char* const _First,
   // Performance note: Long division appears to be faster than losslessly widening float to double and calling
   // __d2fixed_buffered_n(). If __f2fixed_buffered_n() is implemented, it might be faster than long division.
 
-  nstd_assert_msg(_Exponent2 > 0);
-  nstd_assert_msg(_Exponent2 <= 104); // because __ieeeExponent <= 254
+  nstd_assert(_Exponent2 > 0);
+  nstd_assert(_Exponent2 <= 104); // because __ieeeExponent <= 254
 
   // Manually represent _Mantissa2 * 2^_Exponent2 as a large integer. _Mantissa2 is always 24 bits
   // (due to the implicit bit), while _Exponent2 indicates a shift of at most 104 bits.
@@ -1219,7 +1220,7 @@ _NODISCARD constexpr to_chars_result _Large_integer_to_chars(char* const _First,
 
   // _Maxidx is the index of the most significant nonzero element.
   uint32_t _Maxidx = ((24 + static_cast<uint32_t>(_Exponent2) + 31) / 32) - 1;
-  nstd_assert_msg(_Maxidx < _Data_size);
+  nstd_assert(_Maxidx < _Data_size);
 
   const uint32_t _Bit_shift = static_cast<uint32_t>(_Exponent2) % 32;
   if (_Bit_shift <= 8) { // _Mantissa2's 24 bits don't cross an element boundary
@@ -1279,9 +1280,9 @@ _NODISCARD constexpr to_chars_result _Large_integer_to_chars(char* const _First,
     }
   }
 
-  nstd_assert_msg(_Data[0] != 0);
+  nstd_assert(_Data[0] != 0);
   for (uint32_t _Idx = 1; _Idx < _Data_size; ++_Idx) {
-    nstd_assert_msg(_Data[_Idx] == 0);
+    nstd_assert(_Data[_Idx] == 0);
   }
 
   const uint32_t _Data_olength = _Data[0] >= 1000000000 ? 10 : __decimalLength9(_Data[0]);
@@ -1371,7 +1372,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
 
     const int32_t _Whole_digits = static_cast<int32_t>(__olength) + _Ryu_exponent;
 
-    uint32_t _Total_fixed_length = {};
+    uint32_t _Total_fixed_length;
     if (_Ryu_exponent >= 0) { // cases "172900" and "1729"
       _Total_fixed_length = static_cast<uint32_t>(_Whole_digits);
       if (__output == 1) {
@@ -1424,7 +1425,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
         constexpr uint32_t _Max_shifted_mantissa[11] = {
           16777215, 3355443, 671088, 134217, 26843, 5368, 1073, 214, 42, 8, 1 };
 
-        unsigned long _Trailing_zero_bits = {};
+        unsigned long _Trailing_zero_bits;
         (void) third_party::bit_scan_forward(&_Trailing_zero_bits, __v.__mantissa); // __v.__mantissa is guaranteed nonzero
         const uint32_t _Shifted_mantissa = __v.__mantissa >> _Trailing_zero_bits;
         _Can_use_ryu = _Shifted_mantissa <= _Max_shifted_mantissa[_Ryu_exponent];
@@ -1448,7 +1449,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
     }
 
     while (__output >= 10000) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
       const uint32_t __c = __output - 10000 * (__output / 10000);
 #else
       const uint32_t __c = __output % 10000;
@@ -1500,7 +1501,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
   // Print the decimal digits.
   uint32_t __i = 0;
   while (__output >= 10000) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
     const uint32_t __c = __output - 10000 * (__output / 10000);
 #else
     const uint32_t __c = __output % 10000;
@@ -1668,7 +1669,7 @@ _NODISCARD inline uint64_t __mulShiftAll(const uint64_t __m, const uint64_t* con
 #else // ^^^ intrinsics available ^^^ / vvv intrinsics unavailable vvv
 
 _NODISCARD constexpr uint64_t __mulShiftAll(uint64_t __m, const uint64_t* const __mul, const int32_t __j,
-  uint64_t* const __vp, uint64_t* const __vm, const uint32_t __mmShift) { // TRANSITION, VSO#634761
+  uint64_t* const __vp, uint64_t* const __vm, const uint32_t __mmShift) { // TRANSITION, VSO-634761
   __m <<= 1;
   // __m is maximum 55 bits
   uint64_t __tmp;
@@ -1707,7 +1708,7 @@ _NODISCARD constexpr uint32_t __decimalLength17(const uint64_t __v) {
   // The average output length is 16.38 digits, so we check high-to-low.
   // Function precondition: __v is not an 18, 19, or 20-digit number.
   // (17 digits are sufficient for round-tripping.)
-  nstd_assert_msg(__v < 100000000000000000u);
+  nstd_assert(__v < 100000000000000000u);
   if (__v >= 10000000000000000u) { return 17; }
   if (__v >= 1000000000000000u) { return 16; }
   if (__v >= 100000000000000u) { return 15; }
@@ -1804,7 +1805,7 @@ _NODISCARD constexpr __floating_decimal_64 __d2d(const uint64_t __ieeeMantissa, 
         // __mp = __mv + 2, so it always has at least one trailing 0 bit.
         --__vp;
       }
-    } else if (__q < 63) { // TODO(ulfjack): Use a tighter bound here.
+    } else if (__q < 63) { // TRANSITION(ulfjack): Use a tighter bound here.
       // We need to compute min(ntz(__mv), __pow5Factor(__mv) - __e2) >= __q - 1
       // <=> ntz(__mv) >= __q - 1 && __pow5Factor(__mv) - __e2 >= __q - 1
       // <=> ntz(__mv) >= __q - 1 (__e2 is negative and -__e2 >= __q)
@@ -1969,7 +1970,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
 
     const int32_t _Whole_digits = static_cast<int32_t>(__olength) + _Ryu_exponent;
 
-    uint32_t _Total_fixed_length = {};
+    uint32_t _Total_fixed_length;
     if (_Ryu_exponent >= 0) { // cases "172900" and "1729"
       _Total_fixed_length = static_cast<uint32_t>(_Whole_digits);
       if (__output == 1) {
@@ -2087,7 +2088,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
     }
     uint32_t __output2 = static_cast<uint32_t>(__output);
     while (__output2 >= 10000) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
       const uint32_t __c = __output2 - 10000 * (__output2 / 10000);
 #else
       const uint32_t __c = __output2 % 10000;
@@ -2163,7 +2164,7 @@ _NODISCARD constexpr to_chars_result __to_chars(char* const _First, char* const 
   }
   uint32_t __output2 = static_cast<uint32_t>(__output);
   while (__output2 >= 10000) {
-#ifdef __clang__ // TRANSITION, LLVM#38217
+#ifdef __clang__ // TRANSITION, LLVM-38217
     const uint32_t __c = __output2 - 10000 * (__output2 / 10000);
 #else
     const uint32_t __c = __output2 % 10000;
