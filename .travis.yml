@@ -1,14 +1,12 @@
 os: linux # Use linux unless specified otherwise.
-dist: xenial
-sudo: required
+dist: bionic
 
 language: cpp
 
-matrix:
+jobs:
   include:
     - name: gcc-10
       os: linux
-      dist: focal
       addons:
         apt:
           sources:
@@ -20,11 +18,12 @@ matrix:
 
     - name: clang-10
       os: linux
-      dist: bionic
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+            - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
             - g++-10-multilib # for libstdc++
             - clang-10
