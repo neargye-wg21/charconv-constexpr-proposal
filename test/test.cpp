@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// Changes
+// * replace std::array<T>::fill with third_party::trivial_fill
+// * replace std::string with std::array
+
 #include "test.hpp"
 
 #include <algorithm>
@@ -92,7 +96,7 @@ static_assert((chars_format::fixed & chars_format::hex) == chars_format{});
 static_assert(chars_format::general == (chars_format::fixed | chars_format::scientific));
 
 template <typename T, typename Optional>
-void test_common_to_chars(
+constexpr void test_common_to_chars(
     const T value, const Optional opt_arg, const optional<int> opt_precision, const string_view correct) {
 
     // Important: Test every effective buffer size from 0 through correct.size() and slightly beyond. For the sizes
@@ -127,7 +131,7 @@ void test_common_to_chars(
         assert(n <= static_cast<size_t>(buff_end - first));
         char* const last = first + n;
 
-        buff.fill('@');
+        third_party::trivial_fill(buff.data(), '@', buff.size());
         const auto is_fill_char = [](const char c) { return c == '@'; };
 
         to_chars_result result{};
@@ -162,7 +166,7 @@ void test_common_to_chars(
 }
 
 template <typename T>
-void test_integer_to_chars(const T value, const optional<int> opt_base, const string_view correct) {
+constexpr void test_integer_to_chars(const T value, const optional<int> opt_base, const string_view correct) {
 
     test_common_to_chars(value, opt_base, nullopt, correct);
 
@@ -352,7 +356,7 @@ constexpr pair<int64_t, array<const char*, 37>> output_negative[] = {
 };
 
 template <typename T>
-void test_integer_to_chars() {
+constexpr void test_integer_to_chars() {
     for (int base = 2; base <= 36; ++base) {
         test_integer_to_chars(static_cast<T>(0), base, "0");
         test_integer_to_chars(static_cast<T>(1), base, "1");
@@ -383,7 +387,7 @@ void test_integer_to_chars() {
 enum class TestFromCharsMode { Normal, SignalingNaN };
 
 template <typename T, typename BaseOrFmt>
-void test_from_chars(const string_view input, const BaseOrFmt base_or_fmt, const size_t correct_idx,
+constexpr void test_from_chars(const string_view input, const BaseOrFmt base_or_fmt, const size_t correct_idx,
     const errc correct_ec, const optional<T> opt_correct = nullopt,
     const TestFromCharsMode mode = TestFromCharsMode::Normal) {
 
@@ -415,7 +419,7 @@ constexpr errc inv_arg = errc::invalid_argument;
 constexpr errc out_ran = errc::result_out_of_range;
 
 template <typename T>
-void test_integer_from_chars() {
+constexpr void test_integer_from_chars() {
     for (int base = 2; base <= 36; ++base) {
         test_from_chars<T>("", base, 0, inv_arg); // no characters
         test_from_chars<T>("@1", base, 0, inv_arg); // '@' is bogus
@@ -437,7 +441,7 @@ void test_integer_from_chars() {
         test_from_chars<T>("- 1", base, 0, inv_arg); // '-' followed by bogus ' '
         test_from_chars<T>("--1", base, 0, inv_arg); // '-' can't be repeated
 
-        vector<char> bogus_digits;
+        array<char, 3> bogus_digits;
 
         if (base < 10) {
             bogus_digits = {static_cast<char>('0' + base), 'A', 'a'};
@@ -447,19 +451,27 @@ void test_integer_from_chars() {
         }
 
         for (const auto& bogus : bogus_digits) {
-            test_from_chars<T>(bogus + "1"s, base, 0, inv_arg); // bogus digit (for this base)
-            test_from_chars<T>("-"s + bogus + "1"s, base, 0, inv_arg); // '-' followed by bogus digit
+            if (bogus == '\0') {
+                continue;
+            }
+
+            test_from_chars<T>(std::array{ bogus, '1', '\0' }.data(), base, 0, inv_arg); // bogus digit (for this base)
+            test_from_chars<T>(std::array{ '-', bogus, '1', '\0' }.data(), base, 0, inv_arg); // '-' followed by bogus digit
         }
 
+#define TEN_OF(x) x, x, x, x, x, x, x, x, x, x
+#define HUNDRED_OF(x) TEN_OF(TEN_OF(x))
+#define CONCAT_CHARS(...) std::array{ __VA_ARGS__, '\0' }.data()
+
         // Test leading zeroes.
-        test_from_chars<T>(string(100, '0'), base, 100, errc{}, static_cast<T>(0));
-        test_from_chars<T>(string(100, '0') + "11"s, base, 102, errc{}, static_cast<T>(base + 1));
+        test_from_chars<T>(CONCAT_CHARS(HUNDRED_OF('0')), base, 100, errc{}, static_cast<T>(0));
+        test_from_chars<T>(CONCAT_CHARS(HUNDRED_OF('0'), '1', '1'), base, 102, errc{}, static_cast<T>(base + 1));
 
         // Test negative zero and negative leading zeroes.
         if constexpr (is_signed_v<T>) {
             test_from_chars<T>("-0", base, 2, errc{}, static_cast<T>(0));
-            test_from_chars<T>("-"s + string(100, '0'), base, 101, errc{}, static_cast<T>(0));
-            test_from_chars<T>("-"s + string(100, '0') + "11"s, base, 103, errc{}, static_cast<T>(-base - 1));
+            test_from_chars<T>(CONCAT_CHARS('-', HUNDRED_OF('0')), base, 101, errc{}, static_cast<T>(0));
+            test_from_chars<T>(CONCAT_CHARS('-', HUNDRED_OF('0'), '1', '1'), base, 103, errc{}, static_cast<T>(-base - 1));
         }
 
         // N4713 23.20.3 [charconv.from.chars]/1 "The member ptr of the return value points to the
@@ -468,12 +480,12 @@ void test_integer_from_chars() {
         test_from_chars<T>("11@@@", base, 2, errc{}, static_cast<T>(base + 1));
 
         // When overflowing, we need to keep consuming valid digits, in order to return ptr correctly.
-        test_from_chars<T>(string(100, '1'), base, 100, out_ran);
-        test_from_chars<T>(string(100, '1') + "@@@"s, base, 100, out_ran);
+        test_from_chars<T>(CONCAT_CHARS(HUNDRED_OF('1')), base, 100, out_ran);
+        test_from_chars<T>(CONCAT_CHARS(HUNDRED_OF('1'), '@', '@', '@'), base, 100, out_ran);
 
         if constexpr (is_signed_v<T>) {
-            test_from_chars<T>("-"s + string(100, '1'), base, 101, out_ran);
-            test_from_chars<T>("-"s + string(100, '1') + "@@@"s, base, 101, out_ran);
+            test_from_chars<T>(CONCAT_CHARS('-', HUNDRED_OF('1')), base, 101, out_ran);
+            test_from_chars<T>(CONCAT_CHARS('-', HUNDRED_OF('1'), '@', '@', '@'), base, 101, out_ran);
         }
     }
 
@@ -481,8 +493,8 @@ void test_integer_from_chars() {
     // in the "C" locale for the given nonzero base, as described for strtol"
     // C11 7.22.1.4/3 "The letters from a (or A) through z (or Z) are ascribed the values 10 through 35"
     for (int i = 0; i < 26; ++i) {
-        test_from_chars<T>(string(1, static_cast<char>('A' + i)), 36, 1, errc{}, static_cast<T>(10 + i));
-        test_from_chars<T>(string(1, static_cast<char>('a' + i)), 36, 1, errc{}, static_cast<T>(10 + i));
+        test_from_chars<T>(CONCAT_CHARS(static_cast<char>('A' + i)), 36, 1, errc{}, static_cast<T>(10 + i));
+        test_from_chars<T>(CONCAT_CHARS(static_cast<char>('a' + i)), 36, 1, errc{}, static_cast<T>(10 + i));
     }
 
     // N4713 23.20.3 [charconv.from.chars]/3 "no "0x" or "0X" prefix shall appear if the value of base is 16"
@@ -496,12 +508,12 @@ void test_integer_from_chars() {
 }
 
 template <typename T>
-void test_integer() {
+constexpr void test_integer() {
     test_integer_to_chars<T>();
     test_integer_from_chars<T>();
 }
 
-void all_integer_tests() {
+constexpr void all_integer_tests() {
     test_integer<char>();
     test_integer<signed char>();
     test_integer<unsigned char>();
@@ -541,7 +553,7 @@ int main(int argc, char** argv) {
 
     initialize_randomness(mt64, argc, argv);
 
-    all_integer_tests();
+    constexpr bool _ = (all_integer_tests(), true);
 
     const auto finish  = chrono::steady_clock::now();
     const long long ms = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
