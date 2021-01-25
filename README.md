@@ -1,4 +1,4 @@
-# Add Constexpr Modifiers to Functions `to_chars` and `from_chars`
+# Add Constexpr Modifiers to Functions `to_chars` and `from_chars` for Integral Types
 
 ## References
 
