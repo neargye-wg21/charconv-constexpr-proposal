@@ -5,8 +5,6 @@
 // * replace std::array<T>::fill with third_party::trivial_fill
 // * replace std::string with std::array
 
-#include "test.hpp"
-
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -432,6 +430,8 @@ constexpr void test_integer() {
     test_integer_from_chars<T>();
 }
 
+// splitted into multiple generated/test_*.cpp files
+#if 0
 constexpr void all_integer_tests() {
     test_integer<char>();
     test_integer<signed char>();
@@ -464,7 +464,4 @@ constexpr void all_integer_tests() {
     test_from_chars<int>("-2147483649", 10, 11, out_ran); // risky with bad digit
     test_from_chars<int>("-2147483650", 10, 11, out_ran); // beyond risky
 }
-
-int main(int argc, char** argv) {
-    [[maybe_unused]] constexpr auto _ = (all_integer_tests(), true);
-}
+#endif
