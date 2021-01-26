@@ -9,91 +9,19 @@
 
 #include <algorithm>
 #include <array>
-#include <assert.h>
+#include <cassert>
 #include <charconv/charconv.hpp>
-#include <chrono>
 #include <cmath>
-#include <fstream>
 #include <functional>
 #include <limits>
 #include <optional>
-#include <random>
-#include <set>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <string>
 #include <string_view>
 #include <system_error>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 using namespace std;
 using namespace nstd;
-
-void initialize_randomness(mt19937_64& mt64, const int argc, char** const argv) {
-    constexpr size_t n = mt19937_64::state_size;
-    constexpr size_t w = mt19937_64::word_size;
-    static_assert(w % 32 == 0);
-    constexpr size_t k = w / 32;
-
-    vector<uint32_t> vec(n * k);
-
-    puts("USAGE:");
-    puts("test.exe              : generates seed data from random_device.");
-    puts("test.exe filename.txt : loads seed data from a given text file.");
-
-    if (argc == 1) {
-        random_device rd;
-        generate(vec.begin(), vec.end(), ref(rd));
-        puts("Generated seed data.");
-    } else if (argc == 2) {
-        const char* const filename = argv[1];
-
-        ifstream file(filename);
-
-        if (!file) {
-            printf("ERROR: Can't open %s.\n", filename);
-            abort();
-        }
-
-        for (auto& elem : vec) {
-            file >> elem;
-
-            if (!file) {
-                printf("ERROR: Can't read seed data from %s.\n", filename);
-                abort();
-            }
-        }
-
-        printf("Loaded seed data from %s.\n", filename);
-    } else {
-        puts("ERROR: Too many command-line arguments.");
-        abort();
-    }
-
-    puts("SEED DATA:");
-    for (const auto& elem : vec) {
-        printf("%u ", elem);
-    }
-    printf("\n");
-
-    seed_seq seq(vec.cbegin(), vec.cend());
-
-    mt64.seed(seq);
-
-    puts("Successfully seeded mt64. First three values:");
-    for (int i = 0; i < 3; ++i) {
-        printf("0x%016llX\n", mt64());
-    }
-}
-
-static_assert((chars_format::scientific & chars_format::fixed) == chars_format{});
-static_assert((chars_format::scientific & chars_format::hex) == chars_format{});
-static_assert((chars_format::fixed & chars_format::hex) == chars_format{});
-static_assert(chars_format::general == (chars_format::fixed | chars_format::scientific));
 
 template <typename T, typename Optional>
 constexpr void test_common_to_chars(
@@ -384,18 +312,9 @@ constexpr void test_integer_to_chars() {
     test_integer_to_chars(static_cast<T>(42), nullopt, "42");
 }
 
-enum class TestFromCharsMode { Normal, SignalingNaN };
-
 template <typename T, typename BaseOrFmt>
 constexpr void test_from_chars(const string_view input, const BaseOrFmt base_or_fmt, const size_t correct_idx,
-    const errc correct_ec, const optional<T> opt_correct = nullopt,
-    const TestFromCharsMode mode = TestFromCharsMode::Normal) {
-
-    static_assert(!is_floating_point_v<T>);
-
-    if constexpr (is_integral_v<T>) {
-        assert(mode == TestFromCharsMode::Normal);
-    }
+    const errc correct_ec, const optional<T> opt_correct = nullopt) {
 
     constexpr T unmodified = 111;
 
@@ -547,17 +466,5 @@ constexpr void all_integer_tests() {
 }
 
 int main(int argc, char** argv) {
-    const auto start = chrono::steady_clock::now();
-
-    mt19937_64 mt64;
-
-    initialize_randomness(mt64, argc, argv);
-
-    constexpr bool _ = (all_integer_tests(), true);
-
-    const auto finish  = chrono::steady_clock::now();
-    const long long ms = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
-
-    puts("PASS");
-    printf("Total time: %lld ms\n", ms);
+    [[maybe_unused]] constexpr auto _ = (all_integer_tests(), true);
 }
