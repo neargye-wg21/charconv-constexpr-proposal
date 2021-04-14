@@ -8,9 +8,6 @@
 
 Tested on [MS/STL charconv set tests](/test) and small constexpr set tests.
 
-[![Build Status](https://travis-ci.org/Neargye/charconv-constexpr-proposal.svg?branch=integral)](https://travis-ci.org/Neargye/charconv-constexpr-proposal)
-[![Build status](https://ci.appveyor.com/api/projects/status/vmpejqk5uyts2ify/branch/integral?svg=true)](https://ci.appveyor.com/project/Neargye/charconv-constexpr-proposal/branch/integral)
-
-* GCC 10
-* Clang 10
-* Visual Studio 2019
+* [GCC 10](https://github.com/Neargye/charconv-constexpr-proposal/actions/workflows/ubuntu.yml)
+* [Clang 10](https://github.com/Neargye/charconv-constexpr-proposal/actions/workflows/ubuntu.yml)
+* [Visual Studio 2019](https://ci.appveyor.com/project/Neargye/charconv-constexpr-proposal/branch/integral)
