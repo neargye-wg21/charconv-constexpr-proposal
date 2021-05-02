@@ -29,6 +29,7 @@
 // * add constexpr modifiers
 // * add constexpr log2f
 // * change 'memcpy' 'memmove'
+// move charconv.cpp to charconv.hpp
 
 #pragma once
 
@@ -257,7 +258,7 @@ struct __traits_base
 };
 
 template <typename _Tp>
-struct __traits_base<_Tp, decltype(void(uint32_t{declval<_Tp>()}))>
+struct __traits_base<_Tp, decltype(void(uint32_t{std::declval<_Tp>()}))>
 {
     using type = uint32_t;
 
@@ -499,8 +500,8 @@ __sign_combinator(_It __first, _It __last, _Tp& __value, _Fn __f, _Ts... __args)
         {
             __x = __complement(__x);
             //third_party::trivial_copy(&__value, &__x, sizeof(__x));
-            __value = std::bit_cast<std::remove_cvref_t<decltype(__value)>>(__x);
-            //__value = static_cast<std::remove_cvref_t<decltype(__value)>>(__x);
+            //__value = std::bit_cast<std::remove_cvref_t<decltype(__value)>>(__x);
+            __value = static_cast<std::remove_cvref_t<decltype(__value)>>(__x);
             return __r;
         }
     }
